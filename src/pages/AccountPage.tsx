@@ -10,10 +10,13 @@ const maxImageSizeBytes = 5 * 1024 * 1024;
 
 export default function AccountPage() {
   const dispatch = useDispatch();
-  const { t } = useLanguage();
+  const { language, t } = useLanguage();
   const authUser = useSelector((state) => state.auth.user ?? state.user.profile);
   const ownerProperties = useSelector((state) => state.properties.ownerItems);
   const role = authUser?.role || 'USER';
+  const roleLabel = language === 'ar'
+    ? ({ USER: 'مشتري / مستأجر', OWNER: 'مالك عقار', BROKER: 'وسيط عقاري', ADMIN: 'مدير' }[role] || role)
+    : role;
   const [uploadingPropertyId, setUploadingPropertyId] = useState(null);
   const [uploadError, setUploadError] = useState('');
 
@@ -73,7 +76,7 @@ export default function AccountPage() {
             </div>
             <div>
                 <span>{t('role')}</span>
-              <strong>{role}</strong>
+              <strong>{roleLabel}</strong>
             </div>
           </div>
         </div>
@@ -100,8 +103,8 @@ export default function AccountPage() {
                       <strong>{property.title}</strong>
                       <span>{property.status}</span>
                       <small>{property.address}</small>
-                      {property.status === 'rejected' && property.rejection_reason ? <small className="text-danger">Reason: {property.rejection_reason}</small> : null}
-                      {property.status === 'rejected' ? <small>Edit this listing to submit it for review again.</small> : null}
+                      {property.status === 'rejected' && property.rejection_reason ? <small className="text-danger">{language === 'ar' ? 'السبب: ' : 'Reason: '}{property.rejection_reason}</small> : null}
+                      {property.status === 'rejected' ? <small>{language === 'ar' ? 'عدّل هذا الإعلان لإرساله للمراجعة مرة أخرى.' : 'Edit this listing to submit it for review again.'}</small> : null}
                     </div>
                     <div className="owner-listing-actions">
                       {property.status === 'approved' ? <Link to={`/properties/${property.id}`} className="btn btn-outline-primary rounded-pill">{t('view')}</Link> : null}

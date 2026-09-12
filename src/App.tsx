@@ -40,8 +40,10 @@ export default function App() {
         <Route path="/auth" element={<AuthPage />} />
         <Route element={<ProtectedRoute />}>
           <Route path="/account" element={<AccountPage />} />
-          <Route path="/add-property" element={<OwnerPropertyFormPage />} />
-          <Route path="/properties/:id/edit" element={<OwnerPropertyFormPage />} />
+          <Route element={<ProtectedRoute roles={['OWNER', 'BROKER']} />}>
+            <Route path="/add-property" element={<OwnerPropertyFormPage />} />
+            <Route path="/properties/:id/edit" element={<OwnerPropertyFormPage />} />
+          </Route>
         </Route>
         <Route element={<AdminRoute />}>
           <Route path="/admin" element={<AdminPage />} />

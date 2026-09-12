@@ -51,6 +51,58 @@ function LocationPicker({ onSelect }: { onSelect: (position: MapPosition) => voi
   return null;
 }
 
+function locationLabel(location: Location, language: string) {
+  return language === 'ar'
+    ? `${location.name_ar} - ${location.name_en}`
+    : `${location.name_en} - ${location.name_ar}`;
+}
+
+function SearchableLocation({
+  id,
+  options,
+  language,
+  listId,
+  placeholder,
+  disabled,
+  onSelect
+}: {
+  id: string | number;
+  options: Location[];
+  language: string;
+  listId: string;
+  placeholder: string;
+  disabled?: boolean;
+  onSelect: (id: string) => void;
+}) {
+  const selected = options.find((option) => Number(option.id) === Number(id));
+  const [value, setValue] = useState(selected ? locationLabel(selected, language) : '');
+
+  useEffect(() => {
+    setValue(selected ? locationLabel(selected, language) : '');
+  }, [selected, language]);
+
+  return (
+    <>
+      <input
+        list={listId}
+        value={value}
+        placeholder={placeholder}
+        disabled={disabled}
+        onChange={(event) => {
+          const nextValue = event.target.value;
+          setValue(nextValue);
+          const match = options.find((option) => locationLabel(option, language) === nextValue);
+          onSelect(match ? String(match.id) : '');
+        }}
+        required
+      />
+      <datalist id={listId}>
+        {options.map((option) => <option key={option.id} value={locationLabel(option, language)} />)}
+      </datalist>
+    </>
+  );
+}
+
 export default function OwnerPropertyFormPage() {
   const { id } = useParams();
   const dispatch = useDispatch();
@@ -230,10 +282,9 @@ export default function OwnerPropertyFormPage() {
                 <select name="property_type" value={form.property_type} onChange={handleChange}>
                   <option value="apartment">{t('apartment')}</option>
                   <option value="villa">{t('villa')}</option>
-                  <option value="house">{language === 'ar' ? 'منزل' : 'House'}</option>
                   <option value="shop">{t('shop')}</option>
                   <option value="office">{t('office')}</option>
-                  <option value="land">{language === 'ar' ? 'أرض' : 'Land'}</option>
+                  <option value="land">{t('land')}</option>
                 </select>
               </label>
             </div>
@@ -278,22 +329,30 @@ export default function OwnerPropertyFormPage() {
             <div className="col-md-4">
               <label>
                 <span>{t('governorate')}</span>
-                <select name="governorate_id" value={form.governorate_id} onChange={(event) => {
-                  const governorateId = event.target.value;
+                <SearchableLocation
+                  id={form.governorate_id}
+                  options={governorates}
+                  language={language}
+                  listId="governorate-options"
+                  placeholder={language === 'ar' ? 'ابحث عن المحافظة' : 'Search governorate'}
+                  onSelect={(governorateId) => {
                   setForm((current) => ({ ...current, governorate_id: governorateId, city_id: '' }));
-                }} required>
-                  <option value="">{language === 'ar' ? 'اختر المحافظة' : 'Select governorate'}</option>
-                  {governorates.map((governorate) => <option key={governorate.id} value={governorate.id}>{language === 'ar' ? governorate.name_ar : governorate.name_en}</option>)}
-                </select>
+                  }}
+                />
               </label>
             </div>
             <div className="col-md-4">
               <label>
                 <span>{t('city')}</span>
-                <select name="city_id" value={form.city_id} onChange={handleChange} required disabled={!form.governorate_id}>
-                  <option value="">{language === 'ar' ? 'اختر المدينة' : 'Select city'}</option>
-                  {availableCities.map((city) => <option key={city.id} value={city.id}>{language === 'ar' ? city.name_ar : city.name_en}</option>)}
-                </select>
+                <SearchableLocation
+                  id={form.city_id}
+                  options={availableCities}
+                  language={language}
+                  listId="city-options"
+                  placeholder={language === 'ar' ? 'ابحث عن المدينة' : 'Search city'}
+                  disabled={!form.governorate_id}
+                  onSelect={(cityId) => setForm((current) => ({ ...current, city_id: cityId }))}
+                />
               </label>
             </div>
             <div className="col-md-4">

@@ -1,7 +1,7 @@
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from '../store/hooks';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faChevronDown, faHeart, faHouse, faInbox, faPlus, faSignOutAlt, faUser } from '@fortawesome/free-solid-svg-icons';
+import { faChevronDown, faEnvelope, faHeart, faHouse, faInbox, faLocationDot, faPlus, faSignOutAlt, faUser } from '@fortawesome/free-solid-svg-icons';
 import { clearCredentials } from '../features/auth/authSlice.js';
 import { useLanguage } from '../i18n/LanguageContext';
 
@@ -10,7 +10,9 @@ export default function AppLayout() {
   const navigate = useNavigate();
   const token = useSelector((state) => state.auth.token);
   const user = useSelector((state) => state.auth.user ?? state.user.profile);
-  const isAdmin = useSelector((state) => state.auth.user?.role || state.user.profile?.role) === 'ADMIN';
+  const role = useSelector((state) => state.auth.user?.role || state.user.profile?.role);
+  const isAdmin = role === 'ADMIN';
+  const canAddProperty = role === 'OWNER' || role === 'BROKER';
   const { language, toggleLanguage, t } = useLanguage();
 
   const handleLogout = () => {
@@ -51,7 +53,9 @@ export default function AppLayout() {
                     <>
                       <NavLink className="nav-link" to="/favorites"><FontAwesomeIcon icon={faHeart} className="me-2" />{t('favorites')}</NavLink>
                       <NavLink className="nav-link" to="/messages"><FontAwesomeIcon icon={faInbox} className="me-2" />{t('messages')}</NavLink>
-                      <NavLink className="nav-link" to="/add-property"><FontAwesomeIcon icon={faPlus} className="me-2" />{t('addProperty')}</NavLink>
+                      {canAddProperty ? (
+                        <NavLink className="nav-link" to="/add-property"><FontAwesomeIcon icon={faPlus} className="me-2" />{t('addProperty')}</NavLink>
+                      ) : null}
                       {isAdmin ? <><NavLink className="nav-link" to="/admin">{t('admin')}</NavLink><NavLink className="nav-link" to="/admin/review">{t('review')}</NavLink></> : null}
                     </>
                   ) : null}
@@ -83,9 +87,42 @@ export default function AppLayout() {
       </header>
       <main><Outlet /></main>
       <footer className="site-footer">
-        <div className="container d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
-          <div><strong>Maskank</strong><span className="footer-muted ms-3">{t('brandTagline')}</span></div>
-          <div className="footer-muted">© 2026 Maskank · {language === 'ar' ? 'صُنع لمصر' : 'Built for Egypt'}</div>
+        <div className="container">
+          <div className="footer-grid">
+            <div className="footer-brand">
+              <NavLink className="footer-logo" to="/">
+                <span className="brand-symbol"><FontAwesomeIcon icon={faHouse} /></span>
+                <strong>Maskank</strong>
+              </NavLink>
+              <p>{t('footerDescription')}</p>
+              <div className="footer-socials">
+                <a href="#" aria-label="Facebook"><strong>f</strong></a>
+                <a href="#" aria-label="Instagram"><strong>◎</strong></a>
+                <a href="mailto:info@maskank.com" aria-label={language === 'ar' ? 'البريد الإلكتروني' : 'Email'}><FontAwesomeIcon icon={faEnvelope} /></a>
+              </div>
+            </div>
+            <div className="footer-column">
+              <h3>{t('footerExplore')}</h3>
+              <NavLink to="/properties">{t('properties')}</NavLink>
+              <NavLink to="/properties?purpose=sale">{t('buy')}</NavLink>
+              <NavLink to="/properties?purpose=rent">{t('rent')}</NavLink>
+            </div>
+            <div className="footer-column">
+              <h3>{t('footerAccount')}</h3>
+              <NavLink to="/account">{t('account')}</NavLink>
+              <NavLink to="/favorites">{t('favorites')}</NavLink>
+              <NavLink to="/messages">{t('messages')}</NavLink>
+            </div>
+            <div className="footer-column footer-contact">
+              <h3>{t('footerContact')}</h3>
+              <span><FontAwesomeIcon icon={faLocationDot} /> {language === 'ar' ? 'القاهرة، مصر' : 'Cairo, Egypt'}</span>
+              <a href="mailto:info@maskank.com"><FontAwesomeIcon icon={faEnvelope} /> info@maskank.com</a>
+            </div>
+          </div>
+          <div className="footer-bottom">
+            <span>© 2026 Maskank · {language === 'ar' ? 'صُنع لمصر' : 'Built for Egypt'}</span>
+            <span>{t('footerTagline')}</span>
+          </div>
         </div>
       </footer>
     </div>

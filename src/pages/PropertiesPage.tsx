@@ -6,6 +6,7 @@ import { faBed, faBath, faRulerCombined, faMapMarkerAlt, faHeart } from '@fortaw
 import { fetchProperties } from '../features/properties/propertySlice.js';
 import { addFavorite, removeFavorite } from '../features/favorites/favoriteSlice.js';
 import { useLanguage } from '../i18n/LanguageContext';
+import api from '../services/api.js';
 
 const uploadsBaseUrl = (import.meta.env.VITE_UPLOADS_URL || '/uploads').replace(/\/$/, '');
 const defaultPropertyImage = `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(`
@@ -40,11 +41,25 @@ export default function PropertiesPage() {
   const { items, pagination, status, error } = useSelector((state) => state.properties);
   const token = useSelector((state) => state.auth.token);
   const favorites = useSelector((state) => state.favorites.items);
+  const [locations, setLocations] = useState({ governorates: [], cities: [] });
+
+  useEffect(() => {
+    api.get('/locations').then((response) => {
+      setLocations({
+        governorates: response.data.data.governorates,
+        cities: response.data.data.cities
+      });
+    }).catch(() => {
+      setLocations({ governorates: [], cities: [] });
+    });
+  }, []);
 
   const filters = useMemo(() => ({
     keyword: searchParams.get('keyword') || '',
     purpose: searchParams.get('purpose') || '',
     type: searchParams.get('type') || '',
+    governorate: searchParams.get('governorate') || '',
+    city: searchParams.get('city') || '',
     page: Number(searchParams.get('page') || 1),
     limit: Number(searchParams.get('limit') || 12)
   }), [searchParams]);
@@ -63,6 +78,15 @@ export default function PropertiesPage() {
     setSearchParams(params);
   };
 
+  const availableCities = locations.cities.filter(
+    (city) => {
+      const selectedGovernorate = locations.governorates.find(
+        (governorate) => governorate.name_en === filters.governorate
+      );
+      return selectedGovernorate && String(city.governorate_id) === String(selectedGovernorate.id);
+    }
+  );
+
   if (status === 'loading' && items.length === 0) {
     return <section className="page-shell"><div className="container"><div className="loading-card">{t('loading')}</div></div></section>;
   }
@@ -79,12 +103,6 @@ export default function PropertiesPage() {
 
         <div className="filter-card mb-4">
           <div className="filter-grid">
-            <input
-              value={filters.keyword}
-              onChange={(event) => updateQuery({ keyword: event.target.value })}
-              placeholder={t('searchPlaceholder')}
-              className="form-control"
-            />
             <select value={filters.purpose} onChange={(event) => updateQuery({ purpose: event.target.value })} className="form-select">
               <option value="">{t('buyOrRent')}</option>
               <option value="sale">{t('forSale')}</option>
@@ -96,6 +114,23 @@ export default function PropertiesPage() {
               <option value="villa">{t('villa')}</option>
               <option value="shop">{t('shop')}</option>
               <option value="office">{t('office')}</option>
+              <option value="land">{t('land')}</option>
+            </select>
+            <select value={filters.governorate} onChange={(event) => updateQuery({ governorate: event.target.value, city: '' })} className="form-select">
+              <option value="">{t('governorate')}</option>
+              {locations.governorates.map((governorate) => (
+                <option key={governorate.id} value={governorate.name_en}>
+                  {governorate.name_ar} - {governorate.name_en}
+                </option>
+              ))}
+            </select>
+            <select value={filters.city} onChange={(event) => updateQuery({ city: event.target.value })} className="form-select" disabled={!filters.governorate}>
+              <option value="">{t('city')}</option>
+              {availableCities.map((city) => (
+                <option key={city.id} value={city.name_en}>
+                  {city.name_ar} - {city.name_en}
+                </option>
+              ))}
             </select>
           </div>
         </div>
