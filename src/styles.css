@@ -189,6 +189,10 @@ textarea { width: 100%; border: 1px solid var(--line); border-radius: 10px; padd
 .review-item { display: flex; justify-content: space-between; align-items: center; gap: 16px; background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 18px; }
 .review-item strong { display: block; }
 .review-item small { color: var(--muted); }
+.admin-property-preview { display: flex; flex-direction: column; gap: 5px; margin-top: 12px; max-width: 620px; color: var(--muted); }
+.admin-property-preview p { margin: 0 0 4px; color: var(--ink); line-height: 1.6; }
+.admin-preview-images { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 6px; }
+.admin-preview-images img { width: 76px; height: 58px; object-fit: cover; border-radius: 7px; border: 1px solid var(--line); }
 @media (max-width: 991px) { .hero-content { padding-top: 56px; } .search-panel { grid-template-columns: 1fr 1fr; } .search-label { grid-column: 1 / -1; padding-bottom: 5px; } .filter-grid { grid-template-columns: 1fr; } .property-detail-card { grid-template-columns: 1fr; } }
 @media (max-width: 575px) { .hero-section h1 { font-size: 3.25rem; } .hero-content { padding-top: 42px; } .hero-note { margin-left: 0; } .search-panel { grid-template-columns: 1fr; margin-top: 48px; } .search-label { grid-column: auto; padding: 5px 3px; } .section-space { padding: 64px 0; } .section-heading h2, .trust-band h2 { font-size: 2rem; } .auth-card { padding: 22px; } .account-summary { grid-template-columns: 1fr; } .stats-grid { grid-template-columns: repeat(2, minmax(0,1fr)); } .detail-info-panel { grid-template-columns: 1fr; } .property-main-image { height: 300px; } .message-meta { flex-direction: column; align-items: flex-start; } .owner-listing-item { grid-template-columns: 1fr; } .owner-listing-actions { justify-content: flex-start; } .review-item { flex-direction: column; align-items: flex-start; } }
 @media (max-width: 991px) {

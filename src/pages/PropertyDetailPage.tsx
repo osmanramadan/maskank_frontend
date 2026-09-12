@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from '../store/hooks';
 import { Link, useParams } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -14,6 +14,8 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { clearSelectedProperty, fetchProperty } from '../features/properties/propertySlice.js';
 import { addFavorite, removeFavorite } from '../features/favorites/favoriteSlice.js';
+import api from '../services/api.js';
+import { useLanguage } from '../i18n/LanguageContext';
 
 const uploadsBaseUrl = (import.meta.env.VITE_UPLOADS_URL || '/uploads').replace(/\/$/, '');
 const defaultPropertyImage = `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(`
@@ -48,6 +50,13 @@ export default function PropertyDetailPage() {
   const detailStatus = useSelector((state) => state.properties.detailStatus);
   const token = useSelector((state) => state.auth.token);
   const favorites = useSelector((state) => state.favorites.items);
+  const { language, t } = useLanguage();
+  const [reportReason, setReportReason] = useState('fake_property');
+  const [reportDetails, setReportDetails] = useState('');
+  const [reportOpen, setReportOpen] = useState(false);
+  const [reportStatus, setReportStatus] = useState('');
+  const [reportError, setReportError] = useState('');
+  const [reporting, setReporting] = useState(false);
 
   useEffect(() => {
     dispatch(fetchProperty(id));
@@ -65,6 +74,31 @@ export default function PropertyDetailPage() {
   const images = Array.isArray(property.images) ? property.images : [];
   const coverImage = images[0] ? getImageUrl(images[0].filePath) : getImageUrl();
   const isFavorite = favorites.some((favorite) => Number(favorite.id) === Number(property.id) || Number(favorite.property_id) === Number(property.id));
+  const reportReasons = [
+    ['fake_property', t('reportFakeProperty')],
+    ['incorrect_information', t('reportIncorrectInformation')],
+    ['wrong_price', t('reportWrongPrice')],
+    ['duplicate_listing', t('reportDuplicateListing')],
+    ['inappropriate_content', t('reportInappropriateContent')],
+    ['other', t('reportOther')]
+  ];
+
+  const submitReport = async (event) => {
+    event.preventDefault();
+    setReporting(true);
+    setReportError('');
+    setReportStatus('');
+    try {
+      await api.post(`/properties/${property.id}/report`, { reason: reportReason, details: reportDetails });
+      setReportStatus(t('reportSubmitted'));
+      setReportDetails('');
+      setReportOpen(false);
+    } catch (error) {
+      setReportError(error.response?.data?.message || t('reportFailed'));
+    } finally {
+      setReporting(false);
+    }
+  };
 
   return (
     <section className="page-shell property-detail-shell">
@@ -114,14 +148,31 @@ export default function PropertyDetailPage() {
             <div className="detail-info-panel">
               <div><span>Governorate</span><strong>{property.governorate}</strong></div>
               <div><span>City</span><strong>{property.city}</strong></div>
-              <div><span>Area</span><strong>{property.area || '—'}</strong></div>
               <div><span>Furnished</span><strong>{property.furnished ? 'Yes' : 'No'}</strong></div>
             </div>
 
             <div className="detail-actions">
               <Link to="/properties" className="btn btn-quiet dark-btn">Back to listings</Link>
               <button type="button" className="btn btn-primary rounded-pill">Contact owner</button>
+              {token ? <button type="button" className="btn btn-outline-danger rounded-pill" onClick={() => { setReportOpen((current) => !current); setReportError(''); setReportStatus(''); }}>{t('reportProperty')}</button> : null}
             </div>
+            {reportStatus ? <div className="alert alert-success mt-3">{reportStatus}</div> : null}
+            {reportOpen ? (
+              <form className="report-form mt-3" onSubmit={submitReport}>
+                <label>
+                  <span>{t('reportReason')}</span>
+                  <select value={reportReason} onChange={(event) => setReportReason(event.target.value)}>
+                    {reportReasons.map(([value, label]) => <option key={value} value={value}>{label}</option>)}
+                  </select>
+                </label>
+                <label>
+                  <span>{t('reportDetails')}</span>
+                  <textarea value={reportDetails} onChange={(event) => setReportDetails(event.target.value)} maxLength={1000} placeholder={t('reportDetailsPlaceholder')} />
+                </label>
+                {reportError ? <div className="alert alert-danger">{reportError}</div> : null}
+                <button type="submit" className="btn btn-danger rounded-pill" disabled={reporting}>{reporting ? t('sending') : t('sendReport')}</button>
+              </form>
+            ) : null}
           </div>
         </div>
       </div>

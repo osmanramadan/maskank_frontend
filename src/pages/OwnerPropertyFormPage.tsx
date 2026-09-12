@@ -171,6 +171,10 @@ export default function OwnerPropertyFormPage() {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+    if (!id && images.length === 0) {
+      setError(language === 'ar' ? 'يجب اختيار صورة واحدة على الأقل عند إضافة عقار جديد.' : 'Choose at least one property image before submitting a new listing.');
+      return;
+    }
     setLoading(true);
     setError('');
 
@@ -407,9 +411,9 @@ export default function OwnerPropertyFormPage() {
             <div className="col-12">
               <label>
                 <span>{language === 'ar' ? 'اختر صور العقار' : 'Choose property images'}</span>
-                <input type="file" accept="image/jpeg,image/png,image/webp" multiple onChange={handleImagesChange} disabled={loading} />
+                <input type="file" accept="image/jpeg,image/png,image/webp" multiple onChange={handleImagesChange} disabled={loading} required={!id} />
                 <small className="form-hint">
-                  {images.length ? `${images.length} ${language === 'ar' ? 'صور مختارة' : 'images selected'}` : (language === 'ar' ? 'يمكنك اختيار حتى 10 صور' : 'You can choose up to 10 images')}
+                  {images.length ? `${images.length} ${language === 'ar' ? 'صور مختارة' : 'images selected'}` : (language === 'ar' ? 'يجب اختيار صورة واحدة على الأقل، ويمكنك اختيار حتى 10 صور' : 'At least one image is required; you can choose up to 10 images')}
                 </small>
               </label>
             </div>
