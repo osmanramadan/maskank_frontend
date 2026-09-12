@@ -1,0 +1,49 @@
+import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
+
+type Language = 'ar' | 'en';
+type TranslationKey = keyof typeof translations.ar;
+
+const translations = {
+  ar: {
+    home: 'الرئيسية', properties: 'العقارات', rent: 'إيجار', buy: 'شراء', favorites: 'المفضلة', messages: 'الرسائل', addProperty: 'أضف عقاراً', admin: 'الإدارة', review: 'المراجعة', account: 'حسابي', logout: 'خروج', signIn: 'دخول',
+    brandTagline: 'عنوانك القادم يبدأ من هنا.', heroEyebrow: 'مسكنك · مكانك وحكايتك', heroTitle: 'اعثر على مكان', heroTitleAccent: 'يشبهك.', heroCopy: 'اكتشف منازل ومكاتب وأراضي مختارة بعناية في جميع أنحاء مصر، مع كل التفاصيل التي تحتاجها لاتخاذ قرارك بثقة.', heroQuote: '«العنوان المناسب يغيّر أكثر من إطلالتك، بل يغيّر يومك بالكامل.»', heroGuide: 'دليل مسكنك', whyMaskank: 'لماذا مسكنك؟', clearerWay: 'طريقة أوضح للعثور على مكانك القادم.', verifiedDetails: 'تفاصيل موثوقة', verifiedCopy: 'إعلانات تساعدك على اتخاذ قرار حقيقي.', localInsight: 'خبرة محلية', localCopy: 'ابحث في أحياء مصر المختلفة.', madeForMoving: 'مصمم للانتقال', movingCopy: 'احفظ وقارن وتواصل مباشرة.', explore: 'استكشف العقارات', wantBuy: 'أريد الشراء', searchStart: 'ابدأ بحثك', whatLooking: 'عن ماذا تبحث؟', viewAll: 'عرض الكل', searchLabel: 'ابحث بالمكان أو النوع أو الحي', searchPlaceholder: 'مثال: دمياط الجديدة', buyOrRent: 'شراء أو إيجار', forSale: 'للبيع', forRent: 'للإيجار', propertyType: 'نوع العقار', apartment: 'شقة', villa: 'فيلا', shop: 'محل', office: 'مكتب', search: 'بحث', propertySearch: 'بحث العقارات', nextAddress: 'اعثر على عنوانك القادم', previous: 'السابق', next: 'التالي', noProperties: 'لا توجد عقارات تطابق اختياراتك حالياً', loading: 'جارٍ التحميل...', myAccount: 'حسابي', welcomeBack: 'مرحباً بعودتك', manageAccount: 'أدر إعلاناتك وملفاتك الشخصية من مكان واحد.', email: 'البريد الإلكتروني', role: 'نوع الحساب', unavailable: 'غير متاح', ownerTools: 'أدوات المالك', yourListings: 'إعلاناتك', addProperty: 'أضف عقاراً', noListings: 'لا توجد لديك عقارات حتى الآن.', view: 'عرض', edit: 'تعديل', delete: 'حذف', uploadImages: 'رفع الصور', uploading: 'جارٍ الرفع...', deleteListing: 'هل تريد حذف هذا الإعلان؟', uploadFailed: 'تعذر رفع الصور', uploadTooLarge: 'حجم كل صورة يجب ألا يتجاوز 5 ميجابايت', listProperty: 'أضف عقاراً', editProperty: 'تعديل العقار', title: 'العنوان', purpose: 'الغرض', sale: 'بيع', rent: 'إيجار', price: 'السعر', areaSqm: 'المساحة (م²)', bedrooms: 'غرف النوم', bathrooms: 'الحمامات', floor: 'الطابق', totalFloors: 'إجمالي الطوابق', description: 'الوصف', governorate: 'المحافظة', city: 'المدينة', areaId: 'معرّف المنطقة', address: 'العنوان', latitude: 'خط العرض', longitude: 'خط الطول', constructionYear: 'سنة البناء', mapsUrl: 'رابط خرائط Google', furnished: 'مفروش', saving: 'جارٍ الحفظ...', updateListing: 'تحديث الإعلان', submitListing: 'إرسال الإعلان', loadPropertyFailed: 'تعذر تحميل العقار', savePropertyFailed: 'تعذر حفظ العقار'
+  },
+  en: {
+    home: 'Home', properties: 'Properties', rent: 'Rent', buy: 'Buy', favorites: 'Favorites', messages: 'Messages', addProperty: 'Add property', admin: 'Admin', review: 'Review', account: 'Account', logout: 'Log out', signIn: 'Sign in',
+    brandTagline: 'Your next address starts here.', heroEyebrow: 'Maskank · Your place, your story', heroTitle: 'Find a place', heroTitleAccent: 'that feels like yours.', heroCopy: 'Discover thoughtfully listed homes, offices, and land across Egypt, with the details you need to make a confident move.', heroQuote: '“The right address changes more than your view. It changes your everyday.”', heroGuide: 'Maskank guide', whyMaskank: 'Why Maskank', clearerWay: 'A clearer way to find your next place.', verifiedDetails: 'Verified details', verifiedCopy: 'Listings built for real decisions.', localInsight: 'Local insight', localCopy: 'Search neighborhoods across Egypt.', madeForMoving: 'Made for moving', explore: 'Explore properties', wantBuy: 'I want to buy', searchStart: 'Start your search', whatLooking: 'What are you looking for?', viewAll: 'View all', searchLabel: 'Search by place, type, or neighborhood', searchPlaceholder: 'e.g. New Damietta', buyOrRent: 'Buy or rent', forSale: 'For sale', forRent: 'For rent', propertyType: 'Property type', apartment: 'Apartment', villa: 'Villa', shop: 'Shop', office: 'Office', search: 'Search', propertySearch: 'Property search', nextAddress: 'Find your next address', previous: 'Previous', next: 'Next', noProperties: 'No properties match your filters just yet', loading: 'Loading...', myAccount: 'My account', welcomeBack: 'Welcome back', manageAccount: 'Manage your listings, uploads, and profile in one place.', email: 'Email', role: 'Role', unavailable: 'Not available', ownerTools: 'Owner tools', yourListings: 'Your listings', addProperty: 'Add property', noListings: 'You do not have any properties yet.', view: 'View', edit: 'Edit', delete: 'Delete', uploadImages: 'Upload images', uploading: 'Uploading...', deleteListing: 'Delete this listing?', uploadFailed: 'Unable to upload images', uploadTooLarge: 'Each image must be 5 MB or smaller', listProperty: 'List a property', editProperty: 'Edit property', title: 'Title', purpose: 'Purpose', sale: 'Sale', rent: 'Rent', price: 'Price', areaSqm: 'Area (sqm)', bedrooms: 'Bedrooms', bathrooms: 'Bathrooms', floor: 'Floor', totalFloors: 'Total floors', description: 'Description', governorate: 'Governorate', city: 'City', areaId: 'Area ID', address: 'Address', latitude: 'Latitude', longitude: 'Longitude', constructionYear: 'Construction year', mapsUrl: 'Google Maps URL', furnished: 'Furnished', saving: 'Saving...', updateListing: 'Update listing', submitListing: 'Submit listing', loadPropertyFailed: 'Unable to load property', savePropertyFailed: 'Unable to save property'
+  }
+} as const;
+
+interface LanguageContextValue {
+  language: Language;
+  setLanguage: (language: Language) => void;
+  toggleLanguage: () => void;
+  t: (key: TranslationKey) => string;
+}
+
+const LanguageContext = createContext<LanguageContextValue | null>(null);
+
+export function LanguageProvider({ children }: { children: ReactNode }) {
+  const [language, setLanguage] = useState<Language>(() => (localStorage.getItem('maskank_language') as Language) || 'ar');
+
+  useEffect(() => {
+    localStorage.setItem('maskank_language', language);
+    document.documentElement.lang = language;
+    document.documentElement.dir = language === 'ar' ? 'rtl' : 'ltr';
+  }, [language]);
+
+  const value = useMemo(() => ({
+    language,
+    setLanguage,
+    toggleLanguage: () => setLanguage((current) => current === 'ar' ? 'en' : 'ar'),
+    t: (key: TranslationKey) => translations[language][key]
+  }), [language]);
+
+  return <LanguageContext.Provider value={value}>{children}</LanguageContext.Provider>;
+}
+
+export function useLanguage() {
+  const context = useContext(LanguageContext);
+  if (!context) throw new Error('useLanguage must be used inside LanguageProvider');
+  return context;
+}
