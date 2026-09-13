@@ -20,10 +20,10 @@ const emptyForm = {
   bedrooms: '',
   bathrooms: '',
   floor: '',
+  furnished: false,
   construction_year: '',
   governorate_id: '',
   city_id: '',
-  address: '',
   latitude: '',
   longitude: ''
 };
@@ -57,11 +57,43 @@ function locationLabel(location: Location, language: string) {
     : `${location.name_en} - ${location.name_ar}`;
 }
 
+function localizedError(error: unknown, language: string, fallback: string) {
+  const response = typeof error === 'object' && error !== null && 'response' in error
+    ? error.response
+    : null;
+  const message = typeof response === 'object' && response !== null && 'data' in response
+    && typeof response.data === 'object' && response.data !== null && 'message' in response.data
+    && typeof response.data.message === 'string'
+    ? response.data.message
+    : fallback;
+  if (language !== 'ar') return message;
+
+  const translations: Array<[RegExp, string]> = [
+    [/governorate_id must be a valid whole number/i, 'يجب اختيار المحافظة'],
+    [/city_id must be a valid whole number/i, 'يجب اختيار المدينة'],
+    [/governorate_id is required/i, 'المحافظة مطلوبة'],
+    [/city_id is required/i, 'المدينة مطلوبة'],
+    [/title must be between 5 and 180 characters/i, 'العنوان يجب أن يكون بين 5 و180 حرفًا'],
+    [/description is required/i, 'الوصف مطلوب'],
+    [/invalid property type/i, 'نوع العقار غير صحيح'],
+    [/purpose must be sale or rent/i, 'الغرض يجب أن يكون بيعًا أو إيجارًا'],
+    [/area must be a valid number/i, 'المساحة يجب أن تكون رقمًا صحيحًا'],
+    [/area is required/i, 'المساحة مطلوبة'],
+    [/price must be a valid number/i, 'السعر يجب أن يكون رقمًا صحيحًا'],
+    [/price is required/i, 'السعر مطلوب'],
+    [/latitude and longitude must be provided together/i, 'يجب تحديد الموقع كاملًا على الخريطة'],
+    [/invalid construction year/i, 'سنة البناء غير صحيحة'],
+    [/null value in column ["']address["'] violates not-null constraint/i, 'تم حذف حقل العنوان من النموذج، لكن قاعدة البيانات لم تُحدّث بعد. شغّل migration الخاصة بجعل العنوان اختياريًا'],
+    [/column ["']address["'] of relation ["']properties["'] contains null values/i, 'يجب تحديث قاعدة البيانات للسماح بأن يكون العنوان فارغًا']
+  ];
+  const translation = translations.find(([pattern]) => pattern.test(message));
+  return translation ? translation[1] : 'تعذر حفظ العقار، يرجى مراجعة البيانات المدخلة';
+}
+
 function SearchableLocation({
   id,
   options,
   language,
-  listId,
   placeholder,
   disabled,
   onSelect
@@ -69,37 +101,20 @@ function SearchableLocation({
   id: string | number;
   options: Location[];
   language: string;
-  listId: string;
   placeholder: string;
   disabled?: boolean;
   onSelect: (id: string) => void;
 }) {
-  const selected = options.find((option) => Number(option.id) === Number(id));
-  const [value, setValue] = useState(selected ? locationLabel(selected, language) : '');
-
-  useEffect(() => {
-    setValue(selected ? locationLabel(selected, language) : '');
-  }, [selected, language]);
-
   return (
-    <>
-      <input
-        list={listId}
-        value={value}
-        placeholder={placeholder}
+    <select
+        value={id || ''}
         disabled={disabled}
-        onChange={(event) => {
-          const nextValue = event.target.value;
-          setValue(nextValue);
-          const match = options.find((option) => locationLabel(option, language) === nextValue);
-          onSelect(match ? String(match.id) : '');
-        }}
+        onChange={(event) => onSelect(event.target.value)}
         required
-      />
-      <datalist id={listId}>
-        {options.map((option) => <option key={option.id} value={locationLabel(option, language)} />)}
-      </datalist>
-    </>
+      >
+        <option value="">{placeholder}</option>
+        {options.map((option) => <option key={option.id} value={option.id}>{locationLabel(option, language)}</option>)}
+      </select>
   );
 }
 
@@ -126,7 +141,7 @@ export default function OwnerPropertyFormPage() {
       setGovernorates(response.data.data.governorates);
       setCities(response.data.data.cities);
     }).catch((loadError) => {
-      setError(loadError.response?.data?.message || t('loadPropertyFailed'));
+      setError(localizedError(loadError, language, t('loadPropertyFailed')));
     });
 
     if (!id) return;
@@ -146,15 +161,15 @@ export default function OwnerPropertyFormPage() {
           bedrooms: property.bedrooms ?? '',
           bathrooms: property.bathrooms ?? '',
           floor: property.floor ?? '',
+          furnished: property.furnished ?? false,
           construction_year: property.construction_year ?? '',
           governorate_id: property.governorate_id,
           city_id: property.city_id,
-          address: property.address,
           latitude: property.latitude ?? '',
           longitude: property.longitude ?? ''
         });
       } catch (loadError) {
-        setError(loadError.response?.data?.message || t('loadPropertyFailed'));
+        setError(localizedError(loadError, language, t('loadPropertyFailed')));
       }
     };
 
@@ -186,6 +201,7 @@ export default function OwnerPropertyFormPage() {
         bedrooms: form.bedrooms === '' ? null : Number(form.bedrooms),
         bathrooms: form.bathrooms === '' ? null : Number(form.bathrooms),
         floor: form.floor === '' ? null : Number(form.floor),
+        furnished: form.furnished === true,
         construction_year: form.construction_year === '' ? null : Number(form.construction_year),
         governorate_id: Number(form.governorate_id),
         city_id: Number(form.city_id),
@@ -212,7 +228,7 @@ export default function OwnerPropertyFormPage() {
       dispatch(fetchProperties({ page: 1, limit: 12 }));
       navigate('/account');
     } catch (submitError) {
-      setError(submitError.response?.data?.message || t('savePropertyFailed'));
+      setError(localizedError(submitError, language, t('savePropertyFailed')));
     } finally {
       setLoading(false);
     }
@@ -236,20 +252,8 @@ export default function OwnerPropertyFormPage() {
     ? [Number(form.latitude), Number(form.longitude)]
     : null;
 
-  const handleMapSelect = async ([latitude, longitude]: MapPosition) => {
+  const handleMapSelect = ([latitude, longitude]: MapPosition) => {
     setForm((current) => ({ ...current, latitude, longitude }));
-    try {
-      const response = await fetch(
-        `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude}&lon=${longitude}&accept-language=${language}`
-      );
-      if (!response.ok) throw new Error('Reverse geocoding failed');
-      const data = await response.json();
-      if (data.display_name) {
-        setForm((current) => ({ ...current, address: data.display_name, latitude, longitude }));
-      }
-    } catch {
-      setError(language === 'ar' ? 'تم تحديد الموقع، لكن تعذر جلب العنوان تلقائياً' : 'Location selected, but the address could not be loaded automatically');
-    }
   };
 
   return (
@@ -323,6 +327,21 @@ export default function OwnerPropertyFormPage() {
                 <input name="floor" type="number" min="0" value={form.floor} onChange={handleChange} />
               </label>
             </div>
+
+            <div className="col-md-4">
+              <label>
+                <span>{t('furnished')}</span>
+                <select
+                  name="furnished"
+                  value={form.furnished ? 'true' : 'false'}
+                  onChange={(e) => setForm((current) => ({ ...current, furnished: e.target.value === 'true' }))}
+                >
+                  <option value="false">{language === 'ar' ? 'غير مفروش' : 'Unfurnished'}</option>
+                  <option value="true">{language === 'ar' ? 'مفروش' : 'Furnished'}</option>
+                </select>
+              </label>
+            </div>
+
             <div className="col-12">
               <label>
                 <span>{t('description')}</span>
@@ -337,8 +356,7 @@ export default function OwnerPropertyFormPage() {
                   id={form.governorate_id}
                   options={governorates}
                   language={language}
-                  listId="governorate-options"
-                  placeholder={language === 'ar' ? 'ابحث عن المحافظة' : 'Search governorate'}
+                  placeholder={language === 'ar' ? 'اختر المحافظة' : 'Select governorate'}
                   onSelect={(governorateId) => {
                   setForm((current) => ({ ...current, governorate_id: governorateId, city_id: '' }));
                   }}
@@ -352,8 +370,7 @@ export default function OwnerPropertyFormPage() {
                   id={form.city_id}
                   options={availableCities}
                   language={language}
-                  listId="city-options"
-                  placeholder={language === 'ar' ? 'ابحث عن المدينة' : 'Search city'}
+                  placeholder={language === 'ar' ? 'اختر المدينة' : 'Select city'}
                   disabled={!form.governorate_id}
                   onSelect={(cityId) => setForm((current) => ({ ...current, city_id: cityId }))}
                 />
@@ -398,14 +415,6 @@ export default function OwnerPropertyFormPage() {
                   {language === 'ar' ? 'اضغط على الخريطة لتحديد الموقع' : 'Click the map to select the location'}
                 </small>
               </label>
-            </div>
-
-            <div className="col-12">
-              <label>
-                <span>{t('address')}</span>
-                <input name="address" value={form.address} onChange={handleChange} required />
-              </label>
-              {mapPosition ? <small className="form-hint">Latitude: {mapPosition[0].toFixed(6)} · Longitude: {mapPosition[1].toFixed(6)}</small> : null}
             </div>
 
             <div className="col-12">

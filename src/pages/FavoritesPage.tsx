@@ -68,7 +68,7 @@ export default function FavoritesPage() {
         {!favorites.length ? (
           <div className="empty-state">{language === 'ar' ? 'لم تحفظ أي عقار بعد.' : 'You haven’t saved any property yet.'}</div>
         ) : (
-          <div className="results-grid">
+          <div className={`results-grid ${favorites.length === 1 ? 'single-result' : ''}`}>
             {favorites.map((property) => (
               <div key={property.id} className="property-card compact-card">
                 <img src={getImageUrl(Array.isArray(property.images) ? property.images[0]?.filePath : undefined)} alt={property.title || (language === 'ar' ? 'عقار' : 'Property')} className="property-card-image" onError={(event) => { if (event.currentTarget.src !== defaultPropertyImage) event.currentTarget.src = defaultPropertyImage; }} />

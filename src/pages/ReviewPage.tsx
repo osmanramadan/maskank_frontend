@@ -15,13 +15,19 @@ export default function ReviewPage() {
   const [previewId, setPreviewId] = useState<number | null>(null);
   const [preview, setPreview] = useState(null);
   const [actionError, setActionError] = useState('');
+  const [reportTab, setReportTab] = useState<'open' | 'closed'>('open');
 
   useEffect(() => {
     if (adminRole === 'ADMIN') {
       dispatch(fetchAdminProperties({ status: 'pending', page: 1, limit: 20 }));
-      dispatch(fetchAdminReports({ page: 1, limit: 20, resolved: false }));
     }
   }, [adminRole, dispatch]);
+
+  useEffect(() => {
+    if (adminRole === 'ADMIN') {
+      dispatch(fetchAdminReports({ page: 1, limit: 20, resolved: reportTab === 'closed' }));
+    }
+  }, [adminRole, dispatch, reportTab]);
 
   const approveProperty = async (id) => {
     setWorkingId(Number(id));
@@ -72,8 +78,12 @@ export default function ReviewPage() {
   };
 
   const resolveReport = async (id) => {
-    await api.put(`/admin/reports/${id}/resolve`);
-    dispatch(fetchAdminReports({ page: 1, limit: 20, resolved: false }));
+    try {
+      await api.put(`/admin/reports/${id}/resolve`);
+      await dispatch(fetchAdminReports({ page: 1, limit: 20, resolved: false }));
+    } catch (error) {
+      setActionError(error.response?.data?.message || t('resolveReportFailed'));
+    }
   };
 
   if (adminRole !== 'ADMIN') {
@@ -131,7 +141,16 @@ export default function ReviewPage() {
 
         <div className="section-heading mt-5 mb-4">
           <p className="eyebrow dark">{t('reports')}</p>
-          <h2>{t('openReports')}</h2>
+          <h2>{reportTab === 'open' ? t('openReports') : t('closedReports')}</h2>
+        </div>
+
+        <div className="report-tabs" role="tablist" aria-label={t('reports')}>
+          <button type="button" className={`btn rounded-pill ${reportTab === 'open' ? 'btn-primary' : 'btn-outline-primary'}`} onClick={() => setReportTab('open')} role="tab" aria-selected={reportTab === 'open'}>
+            {t('openReports')}
+          </button>
+          <button type="button" className={`btn rounded-pill ${reportTab === 'closed' ? 'btn-primary' : 'btn-outline-primary'}`} onClick={() => setReportTab('closed')} role="tab" aria-selected={reportTab === 'closed'}>
+            {t('closedReports')}
+          </button>
         </div>
 
         <div className="review-stack">
@@ -142,9 +161,9 @@ export default function ReviewPage() {
                 <small>{report.reason || t('reportedListing')} · {report.reporter_name || t('user')} · {report.created_at}</small>
                 {report.details ? <p className="mb-0 mt-2">{report.details}</p> : null}
               </div>
-              <button type="button" className="btn btn-outline-primary rounded-pill" onClick={() => resolveReport(report.id)}>{t('resolve')}</button>
+              {reportTab === 'open' ? <button type="button" className="btn btn-outline-primary rounded-pill" onClick={() => resolveReport(report.id)}>{t('resolve')}</button> : <span className="report-status">{t('resolved')}</span>}
             </div>
-          )) : <div className="empty-state">{t('noOpenReports')}</div>}
+          )) : <div className="empty-state">{reportTab === 'open' ? t('noOpenReports') : t('noClosedReports')}</div>}
         </div>
       </div>
     </section>

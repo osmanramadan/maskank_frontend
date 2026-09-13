@@ -37,7 +37,7 @@ export default function AdminPage() {
             </div>
             <div>
               <strong>{stats.totalReports ?? 0}</strong>
-              <span>Reports</span>
+              <span>Total reports</span>
             </div>
           </div>
         )}
