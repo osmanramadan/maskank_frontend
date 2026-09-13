@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from '../store/hooks';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBed, faBath, faRulerCombined, faMapMarkerAlt, faHeart } from '@fortawesome/free-solid-svg-icons';
 import { fetchProperties } from '../features/properties/propertySlice.js';
@@ -36,6 +36,7 @@ function getImageUrl(filePath?: string | null) {
 
 export default function PropertiesPage() {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const { t } = useLanguage();
   const [searchParams, setSearchParams] = useSearchParams();
   const { items, pagination, status, error } = useSelector((state) => state.properties);
@@ -147,7 +148,16 @@ export default function PropertiesPage() {
             return (
               <div key={property.id} className="property-card property-card-with-favorite">
                 <img src={imageUrl} alt={property.title} className="property-card-image" onError={(event) => { if (event.currentTarget.src !== defaultPropertyImage) event.currentTarget.src = defaultPropertyImage; }} />
-                {token ? <button type="button" className={`favorite-button ${isFavorite ? 'is-favorite' : ''}`} aria-label={isFavorite ? 'Unlike' : 'Like'} onClick={() => dispatch(isFavorite ? removeFavorite(Number(property.id)) : addFavorite(Number(property.id)))}><FontAwesomeIcon icon={faHeart} /></button> : null}
+                <button
+                  type="button"
+                  className={`favorite-button ${isFavorite ? 'is-favorite' : ''}`}
+                  aria-label={isFavorite ? 'Unlike' : 'Like'}
+                  onClick={() => token
+                    ? dispatch(isFavorite ? removeFavorite(Number(property.id)) : addFavorite(Number(property.id)))
+                    : navigate('/auth')}
+                >
+                  <FontAwesomeIcon icon={faHeart} />
+                </button>
                 <Link to={`/properties/${property.id}`} className="property-card-link">
                 <div className="property-card-body">
                   <div className="property-card-topline">
