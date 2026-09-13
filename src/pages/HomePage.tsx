@@ -5,25 +5,30 @@ import { useLanguage } from '../i18n/LanguageContext';
 import { useEffect, useState } from 'react';
 import api from '../services/api.js';
 
-const categories = [
-  { label: 'شقق', count: '١٬٢٤٠ إعلان', type: 'apartment', icon: faBuilding },
-  { label: 'منازل وفيلات', count: '٣٨٦ إعلاناً', type: 'villa', icon: faKey },
-  { label: 'تجاري', count: '٢١٤ إعلاناً', type: 'shop', icon: faBuilding },
-  { label: 'أراضٍ', count: '١٧٢ إعلاناً', type: 'land', icon: faShieldHalved }
-];
-
 export default function HomePage() {
   const { language, t } = useLanguage();
+  const [categoryCounts, setCategoryCounts] = useState<Record<string, number>>({});
+
+  useEffect(() => {
+    const types = ['apartment', 'villa', 'shop', 'land'];
+    Promise.all(types.map(async (type) => {
+      const response = await api.get('/properties', { params: { type, page: 1, limit: 1 } });
+      return [type, Number(response.data.pagination?.total || 0)] as const;
+    }))
+      .then((results) => setCategoryCounts(Object.fromEntries(results)))
+      .catch(() => setCategoryCounts({}));
+  }, []);
+
   const categories = language === 'ar' ? [
-    { label: 'شقق', count: '١٬٢٤٠ إعلان', type: 'apartment', icon: faBuilding },
-    { label: 'منازل وفيلات', count: '٣٨٦ إعلاناً', type: 'villa', icon: faKey },
-    { label: 'تجاري', count: '٢١٤ إعلاناً', type: 'shop', icon: faBuilding },
-    { label: 'أراضٍ', count: '١٧٢ إعلاناً', type: 'land', icon: faShieldHalved }
+    { label: 'شقق', type: 'apartment', icon: faBuilding },
+    { label: 'منازل وفيلات', type: 'villa', icon: faKey },
+    { label: 'تجاري', type: 'shop', icon: faBuilding },
+    { label: 'أراضٍ', type: 'land', icon: faShieldHalved }
   ] : [
-    { label: 'Apartments', count: '1,240 listings', type: 'apartment', icon: faBuilding },
-    { label: 'Homes & villas', count: '386 listings', type: 'villa', icon: faKey },
-    { label: 'Commercial', count: '214 listings', type: 'shop', icon: faBuilding },
-    { label: 'Land', count: '172 listings', type: 'land', icon: faShieldHalved }
+    { label: 'Apartments', type: 'apartment', icon: faBuilding },
+    { label: 'Homes & villas', type: 'villa', icon: faKey },
+    { label: 'Commercial', type: 'shop', icon: faBuilding },
+    { label: 'Land', type: 'land', icon: faShieldHalved }
   ];
   return (
     <>
@@ -56,7 +61,7 @@ export default function HomePage() {
             <div><p className="eyebrow dark">{t('searchStart')}</p><h2>{t('whatLooking')}</h2></div>
             <Link to="/properties" className="text-link d-none d-md-inline">{t('viewAll')} <FontAwesomeIcon icon={faArrowRight} /></Link>
           </div>
-          <div className="row g-3">{categories.map((category) => <div className="col-6 col-lg-3" key={category.label}><Link to={`/properties?type=${category.type}`} className="category-tile"><span className="category-icon"><FontAwesomeIcon icon={category.icon} /></span><strong>{category.label}</strong><small>{category.count}</small></Link></div>)}</div>
+          <div className="row g-3">{categories.map((category) => <div className="col-6 col-lg-3" key={category.label}><Link to={`/properties?type=${category.type}`} className="category-tile"><span className="category-icon"><FontAwesomeIcon icon={category.icon} /></span><strong>{category.label}</strong><small>{categoryCounts[category.type] === undefined ? '—' : language === 'ar' ? `${categoryCounts[category.type].toLocaleString('ar-EG')} إعلان` : `${categoryCounts[category.type].toLocaleString('en-EG')} listings`}</small></Link></div>)}</div>
         </div>
       </section>
       <section className="benefits-section">

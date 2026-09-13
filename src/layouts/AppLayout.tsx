@@ -26,8 +26,7 @@ export default function AppLayout() {
         <nav className="navbar navbar-expand-lg">
           <div className="container py-2 header-inner">
             <NavLink className="brand-mark" to="/" aria-label="الصفحة الرئيسية لمسكنك">
-              <span className="brand-symbol"><FontAwesomeIcon icon={faHouse} /></span>
-              <span>Maskank</span>
+              <img className="brand-logo" src="/logo-header-current.png?v=2" alt="عقارات مصر" />
             </NavLink>
             <button className="language-toggle header-language" type="button" onClick={toggleLanguage} aria-label={language === 'ar' ? 'Switch to English' : 'التبديل إلى العربية'}>
               {language === 'ar' ? 'EN' : 'عربي'}
@@ -91,8 +90,8 @@ export default function AppLayout() {
           <div className="footer-grid">
             <div className="footer-brand">
               <NavLink className="footer-logo" to="/">
-                <span className="brand-symbol"><FontAwesomeIcon icon={faHouse} /></span>
-                <strong>Maskank</strong>
+                <img className="footer-logo-image" src="/logo-header-current.png?v=2" alt="عقارات مصر" />
+                <strong>عقارات مصر</strong>
               </NavLink>
               <p>{t('footerDescription')}</p>
               <div className="footer-socials">
@@ -120,7 +119,7 @@ export default function AppLayout() {
             </div>
           </div>
           <div className="footer-bottom">
-            <span>© 2026 Maskank · {language === 'ar' ? 'صُنع لمصر' : 'Built for Egypt'}</span>
+            <span>© 2026 عقارات مصر · {language === 'ar' ? 'صُنع لمصر' : 'Built for Egypt'}</span>
             <span>{t('footerTagline')}</span>
           </div>
         </div>

@@ -173,7 +173,6 @@ export default function PropertyDetailPage() {
             {token ? <button type="button" className={`favorite-button detail-favorite-button ${isFavorite ? 'is-favorite' : ''}`} aria-label={isFavorite ? 'Remove from favorites' : 'Add to favorites'} onClick={() => dispatch(isFavorite ? removeFavorite(property.id) : addFavorite(property.id))}><FontAwesomeIcon icon={faHeart} /> <span>{isFavorite ? 'Saved' : 'Save'}</span></button> : null}
             <div className="property-price-row">
               <strong>{Number(property.price).toLocaleString('en-EG')} {property.currency}</strong>
-              <span>{property.city}</span>
             </div>
             <div className="location-line">
               <FontAwesomeIcon icon={faMapMarkerAlt} />
