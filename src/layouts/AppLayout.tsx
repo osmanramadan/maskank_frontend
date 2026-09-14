@@ -12,7 +12,7 @@ export default function AppLayout() {
   const user = useSelector((state) => state.auth.user ?? state.user.profile);
   const role = useSelector((state) => state.auth.user?.role || state.user.profile?.role);
   const isAdmin = role === 'ADMIN';
-  const canAddProperty = role === 'USER' || role === 'OWNER' || role === 'BROKER' || role === 'COMPANY' || role === 'ADMIN';
+  const canAddProperty = role === 'OWNER' || role === 'BROKER' || role === 'COMPANY' || role === 'ADMIN';
   const { language, toggleLanguage, t } = useLanguage();
 
   const handleLogout = () => {
@@ -51,7 +51,7 @@ export default function AppLayout() {
                   <NavLink className="nav-link" to="/contact">{t('footerContact')}</NavLink>
                   <>
                       <NavLink className="nav-link" to="/favorites"><FontAwesomeIcon icon={faHeart} className="me-2" />{t('favorites')}</NavLink>
-                      <NavLink className="nav-link" to="/add-property"><FontAwesomeIcon icon={faPlus} className="me-2" />{t('addProperty')}</NavLink>
+                      {token && canAddProperty ? <NavLink className="nav-link" to="/add-property"><FontAwesomeIcon icon={faPlus} className="me-2" />{t('addProperty')}</NavLink> : null}
                       {token && isAdmin ? <><NavLink className="nav-link" to="/admin">{t('admin')}</NavLink><NavLink className="nav-link" to="/admin/review">{t('review')}</NavLink></> : null}
                   </>
                 </div>

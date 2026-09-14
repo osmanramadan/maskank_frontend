@@ -140,7 +140,7 @@ export default function OwnerPropertyFormPage() {
   const [submittedPropertyId, setSubmittedPropertyId] = useState<number | string | null>(null);
 
   useEffect(() => {
-    if (!token || !['USER', 'OWNER', 'BROKER', 'COMPANY', 'ADMIN'].includes(role || '')) return;
+    if (!token || !['OWNER', 'BROKER', 'COMPANY', 'ADMIN'].includes(role || '')) return;
 
     api.get('/locations').then((response) => {
       setGovernorates(response.data.data.governorates);
@@ -199,13 +199,13 @@ export default function OwnerPropertyFormPage() {
     );
   }
 
-  if (!['USER', 'OWNER', 'BROKER', 'COMPANY', 'ADMIN'].includes(role || '')) {
+  if (!['OWNER', 'BROKER', 'COMPANY', 'ADMIN'].includes(role || '')) {
     return (
       <section className="page-shell">
         <div className="container">
           <div className="auth-card mx-auto text-center">
-            <h2>{language === 'ar' ? 'نوع الحساب غير مسموح' : 'Account type not allowed'}</h2>
-            <p className="page-copy">{language === 'ar' ? 'يمكنك تغيير نوع الحساب من إعدادات الحساب للمتابعة.' : 'You can change your account type from account settings to continue.'}</p>
+            <h2>{language === 'ar' ? 'غير مسموح لنوع الحساب هذا بإضافة عقار' : 'This account type cannot add properties'}</h2>
+            <p className="page-copy">{language === 'ar' ? 'حساب المشتري مخصص لتصفح العقارات وحفظها. يمكنك تغيير نوع الحساب من لوحة الحساب ثم العودة لإضافة عقار.' : 'Buyer accounts are for browsing and saving properties. Change your account type from your account page, then return to add a property.'}</p>
             <Link className="btn btn-primary rounded-pill" to="/account">{language === 'ar' ? 'الذهاب إلى إعدادات الحساب' : 'Go to account settings'}</Link>
           </div>
         </div>
@@ -341,7 +341,7 @@ export default function OwnerPropertyFormPage() {
               </small>
               <a
                 className="payment-receipt-link"
-                href={`https://wa.me/201027528199?text=${encodeURIComponent(language === 'ar' ? 'مرحبًا، أرسل إيصال دفع إعلان العقار رقم ' + submittedPropertyId : `Hello, I am sending the payment receipt for property ${submittedPropertyId}`)}`}
+                href={`https://wa.me/201027528199?text=${encodeURIComponent(language === 'ar' ? 'مرحبًا،ارسال إيصال دفع إعلان العقار رقم ' + submittedPropertyId : `Hello, I am sending the payment receipt for property ${submittedPropertyId}`)}`}
                 target="_blank"
                 rel="noreferrer"
               >
