@@ -9,10 +9,10 @@ import PropertyDetailPage from './pages/PropertyDetailPage.jsx';
 import AuthPage from './pages/AuthPage.jsx';
 import AccountPage from './pages/AccountPage.jsx';
 import FavoritesPage from './pages/FavoritesPage.jsx';
-import MessagesPage from './pages/MessagesPage.jsx';
 import AdminPage from './pages/AdminPage.jsx';
 import OwnerPropertyFormPage from './pages/OwnerPropertyFormPage.jsx';
 import ReviewPage from './pages/ReviewPage.jsx';
+import ContactPage from './pages/ContactPage.jsx';
 import NotFoundPage from './pages/NotFoundPage.jsx';
 import AdminRoute from './components/AdminRoute.jsx';
 import { fetchCurrentUser } from './features/users/userSlice.js';
@@ -36,8 +36,8 @@ export default function App() {
         <Route path="/properties" element={<PropertiesPage />} />
         <Route path="/properties/:id" element={<PropertyDetailPage />} />
         <Route path="/favorites" element={<FavoritesPage />} />
-        <Route path="/messages" element={<MessagesPage />} />
         <Route path="/auth" element={<AuthPage />} />
+        <Route path="/contact" element={<ContactPage />} />
         <Route element={<ProtectedRoute />}>
           <Route path="/account" element={<AccountPage />} />
           <Route element={<ProtectedRoute roles={['OWNER', 'BROKER']} />}>

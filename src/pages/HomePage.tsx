@@ -95,7 +95,23 @@ export default function HomePage() {
           </div>
         </div>
       </section>
-      <section className="trust-band"><div className="container row g-4 align-items-center"><div className="col-lg-5"><p className="eyebrow dark">{t('whyMaskank')}</p><h2>{t('clearerWay')}</h2></div><div className="col-lg-7"><div className="row g-4"><div className="col-md-4"><strong>٠١</strong><p>{t('verifiedDetails')}</p><small>{t('verifiedCopy')}</small></div><div className="col-md-4"><strong>٠٢</strong><p>{t('localInsight')}</p><small>{t('localCopy')}</small></div><div className="col-md-4"><strong>٠٣</strong><p>{t('madeForMoving')}</p><small>{t('movingCopy')}</small></div></div></div></div></section>
+      <section className="trust-band">
+        <div className="container">
+          <div className="row g-4 align-items-center">
+            <div className="col-lg-5">
+              <p className="eyebrow dark">{t('whyMaskank')}</p>
+              <h2>{t('clearerWay')}</h2>
+            </div>
+            <div className="col-lg-7">
+              <div className="row g-4">
+                <div className="col-md-4"><strong>٠١</strong><p>{t('verifiedDetails')}</p><small>{t('verifiedCopy')}</small></div>
+                <div className="col-md-4"><strong>٠٢</strong><p>{t('localInsight')}</p><small>{t('localCopy')}</small></div>
+                <div className="col-md-4"><strong>٠٣</strong><p>{t('madeForMoving')}</p><small>{t('movingCopy')}</small></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
     </>
   );
 }

@@ -1,7 +1,7 @@
-import { NavLink, Outlet, useNavigate } from 'react-router-dom';
+import { Link, NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from '../store/hooks';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faChevronDown, faEnvelope, faHeart, faHouse, faInbox, faLocationDot, faPlus, faSignOutAlt, faUser } from '@fortawesome/free-solid-svg-icons';
+import { faChevronDown, faEnvelope, faHeart, faHouse, faLocationDot, faPlus, faSignOutAlt, faUser } from '@fortawesome/free-solid-svg-icons';
 import { clearCredentials } from '../features/auth/authSlice.js';
 import { useLanguage } from '../i18n/LanguageContext';
 
@@ -25,7 +25,7 @@ export default function AppLayout() {
       <header className="site-header">
         <nav className="navbar navbar-expand-lg">
           <div className="container py-2 header-inner">
-            <NavLink className="brand-mark" to="/" aria-label="الصفحة الرئيسية لمسكنك">
+            <NavLink className="brand-mark" to="/" aria-label="الصفحة الرئيسية لعقارات مصر">
               <img className="brand-logo" src="/logo-header-current.png?v=2" alt="عقارات مصر" />
             </NavLink>
             <button className="language-toggle header-language" type="button" onClick={toggleLanguage} aria-label={language === 'ar' ? 'Switch to English' : 'التبديل إلى العربية'}>
@@ -38,20 +38,20 @@ export default function AppLayout() {
               <div className="header-nav">
                 <div className="primary-nav">
                   <NavLink className="nav-link" to="/">{t('home')}</NavLink>
-                  <div className="dropdown">
-                    <button className="nav-link dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                      {t('properties')} <FontAwesomeIcon icon={faChevronDown} className="dropdown-chevron" />
+                  <div className="dropdown properties-dropdown">
+                    <NavLink className="nav-link properties-link" to="/properties">{t('properties')}</NavLink>
+                    <button className="nav-link dropdown-toggle properties-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label={language === 'ar' ? 'فتح قائمة العقارات' : 'Open properties menu'}>
+                      <FontAwesomeIcon icon={faChevronDown} className="dropdown-chevron" />
                     </button>
                     <ul className="dropdown-menu dropdown-menu-end">
-                      <li><NavLink className="dropdown-item" to="/properties">{t('properties')}</NavLink></li>
-                      <li><NavLink className="dropdown-item" to="/properties?purpose=rent">{t('rent')}</NavLink></li>
-                      <li><NavLink className="dropdown-item" to="/properties?purpose=sale">{t('buy')}</NavLink></li>
+                      <li><Link className="dropdown-item" to="/properties?purpose=rent">{t('rent')}</Link></li>
+                      <li><Link className="dropdown-item" to="/properties?purpose=sale">{t('buy')}</Link></li>
                     </ul>
                   </div>
+                  <NavLink className="nav-link" to="/contact">{t('footerContact')}</NavLink>
                   {token ? (
                     <>
                       <NavLink className="nav-link" to="/favorites"><FontAwesomeIcon icon={faHeart} className="me-2" />{t('favorites')}</NavLink>
-                      <NavLink className="nav-link" to="/messages"><FontAwesomeIcon icon={faInbox} className="me-2" />{t('messages')}</NavLink>
                       {canAddProperty ? (
                         <NavLink className="nav-link" to="/add-property"><FontAwesomeIcon icon={faPlus} className="me-2" />{t('addProperty')}</NavLink>
                       ) : null}
@@ -110,12 +110,11 @@ export default function AppLayout() {
               <h3>{t('footerAccount')}</h3>
               <NavLink to="/account">{t('account')}</NavLink>
               <NavLink to="/favorites">{t('favorites')}</NavLink>
-              <NavLink to="/messages">{t('messages')}</NavLink>
             </div>
             <div className="footer-column footer-contact">
               <h3>{t('footerContact')}</h3>
               <span><FontAwesomeIcon icon={faLocationDot} /> {language === 'ar' ? 'القاهرة، مصر' : 'Cairo, Egypt'}</span>
-              <a href="mailto:info@maskank.com"><FontAwesomeIcon icon={faEnvelope} /> info@maskank.com</a>
+              <NavLink to="/contact">{t('footerContact')}</NavLink>
             </div>
           </div>
           <div className="footer-bottom">

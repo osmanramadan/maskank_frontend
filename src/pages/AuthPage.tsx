@@ -93,7 +93,7 @@ export default function AuthPage() {
           {mode === 'login' ? (
             <form className="auth-form" onSubmit={handleLoginSubmit}>
               <p className="eyebrow dark">{language === 'ar' ? 'مرحباً بعودتك' : 'Welcome back'}</p>
-              <h1>{language === 'ar' ? 'سجّل الدخول إلى مسكنك' : 'Sign in to Maskank'}</h1>
+              <h1>{language === 'ar' ? 'سجّل الدخول إلى عقارات مصر' : 'Sign in to Egypt Real Estate'}</h1>
               <label>
                 <span>{language === 'ar' ? 'البريد الإلكتروني' : 'Email'}</span>
                 <input name="email" type="email" value={loginForm.email} onChange={handleLoginChange} placeholder="you@example.com" required />

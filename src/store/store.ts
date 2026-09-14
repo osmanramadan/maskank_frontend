@@ -2,7 +2,6 @@ import { configureStore } from '@reduxjs/toolkit';
 import authReducer from '../features/auth/authSlice.js';
 import propertyReducer from '../features/properties/propertySlice.js';
 import favoriteReducer from '../features/favorites/favoriteSlice.js';
-import messageReducer from '../features/messages/messageSlice.js';
 import adminReducer from '../features/admin/adminSlice.js';
 import userReducer from '../features/users/userSlice.js';
 
@@ -11,7 +10,6 @@ export const store = configureStore({
     auth: authReducer
     , properties: propertyReducer
     , favorites: favoriteReducer
-    , messages: messageReducer
     , admin: adminReducer
     , user: userReducer
   }

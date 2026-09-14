@@ -108,6 +108,7 @@ export default function AdminPage() {
         ) : (
           <div className="empty-state">{t('noProperties')}</div>
         )}
+
       </div>
     </section>
   );

@@ -104,6 +104,18 @@ export default function PropertyDetailPage() {
     ['inappropriate_content', t('reportInappropriateContent')],
     ['other', t('reportOther')]
   ];
+  const propertyTypeKey = String(property.property_type || '').toLowerCase();
+  const propertyTypeLabel = propertyTypeKey === 'apartment'
+    ? t('apartment')
+    : propertyTypeKey === 'villa'
+      ? t('villa')
+      : propertyTypeKey === 'shop'
+        ? t('shop')
+        : propertyTypeKey === 'office'
+          ? t('office')
+          : propertyTypeKey === 'land'
+            ? t('land')
+            : property.property_type;
 
   const submitReport = async (event) => {
     event.preventDefault();
@@ -122,13 +134,14 @@ export default function PropertyDetailPage() {
     }
   };
 
+
   return (
     <section className="page-shell property-detail-shell">
       <div className="container">
         <nav className="breadcrumb-row">
-          <Link to="/">Home</Link>
+          <Link to="/">{language === 'ar' ? 'الرئيسية' : 'Home'}</Link>
           <span>/</span>
-          <Link to="/properties">Properties</Link>
+          <Link to="/properties">{language === 'ar' ? 'العقارات' : 'Properties'}</Link>
           <span>/</span>
           <span>{property.title}</span>
         </nav>
@@ -166,11 +179,11 @@ export default function PropertyDetailPage() {
 
           <div className="property-info-panel">
             <div className="property-meta-header">
-              <span className="property-chip">{property.purpose === 'sale' ? 'For sale' : 'For rent'}</span>
-              <span className="property-chip light">{property.property_type}</span>
+              <span className="property-chip">{property.purpose === 'sale' ? (language === 'ar' ? 'للبيع' : 'For sale') : (language === 'ar' ? 'للإيجار' : 'For rent')}</span>
+              <span className="property-chip light">{propertyTypeLabel}</span>
             </div>
             <h1>{property.title}</h1>
-            {token ? <button type="button" className={`favorite-button detail-favorite-button ${isFavorite ? 'is-favorite' : ''}`} aria-label={isFavorite ? 'Remove from favorites' : 'Add to favorites'} onClick={() => dispatch(isFavorite ? removeFavorite(property.id) : addFavorite(property.id))}><FontAwesomeIcon icon={faHeart} /> <span>{isFavorite ? 'Saved' : 'Save'}</span></button> : null}
+            {token ? <button type="button" className={`favorite-button detail-favorite-button ${isFavorite ? 'is-favorite' : ''}`} aria-label={isFavorite ? (language === 'ar' ? 'إزالة من المفضلة' : 'Remove from favorites') : (language === 'ar' ? 'إضافة إلى المفضلة' : 'Add to favorites')} onClick={() => dispatch(isFavorite ? removeFavorite(property.id) : addFavorite(property.id))}><FontAwesomeIcon icon={faHeart} /> <span>{isFavorite ? (language === 'ar' ? 'تم الحفظ' : 'Saved') : (language === 'ar' ? 'حفظ' : 'Save')}</span></button> : null}
             <div className="property-price-row">
               <strong>{Number(property.price).toLocaleString('en-EG')} {property.currency}</strong>
             </div>
@@ -199,23 +212,23 @@ export default function PropertyDetailPage() {
             <p className="property-description">{property.description}</p>
 
             <div className="stats-grid">
-              <div><FontAwesomeIcon icon={faBed} /><strong>{property.bedrooms ?? 0}</strong><span>Bedrooms</span></div>
-              <div><FontAwesomeIcon icon={faBath} /><strong>{property.bathrooms ?? 0}</strong><span>Bathrooms</span></div>
-              <div><FontAwesomeIcon icon={faRulerCombined} /><strong>{property.area_sqm}</strong><span>sqm</span></div>
-              <div><FontAwesomeIcon icon={faBuilding} /><strong>{property.floor ?? '—'}</strong><span>Floor</span></div>
+              <div><FontAwesomeIcon icon={faBed} /><strong>{property.bedrooms ?? 0}</strong><span>{language === 'ar' ? 'غرف نوم' : 'Bedrooms'}</span></div>
+              <div><FontAwesomeIcon icon={faBath} /><strong>{property.bathrooms ?? 0}</strong><span>{language === 'ar' ? 'حمامات' : 'Bathrooms'}</span></div>
+              <div><FontAwesomeIcon icon={faRulerCombined} /><strong>{property.area_sqm}</strong><span>{language === 'ar' ? 'م²' : 'sqm'}</span></div>
+              <div><FontAwesomeIcon icon={faBuilding} /><strong>{property.floor ?? '—'}</strong><span>{language === 'ar' ? 'الطابق' : 'Floor'}</span></div>
             </div>
 
             <div className="detail-info-panel">
-              <div><span>Governorate</span><strong>{property.governorate}</strong></div>
-              <div><span>City</span><strong>{property.city}</strong></div>
-              <div><span>Furnished</span><strong>{property.furnished ? 'Yes' : 'No'}</strong></div>
+              <div><span>{language === 'ar' ? 'المحافظة' : 'Governorate'}</span><strong>{property.governorate}</strong></div>
+              <div><span>{language === 'ar' ? 'المدينة' : 'City'}</span><strong>{property.city}</strong></div>
+              <div><span>{language === 'ar' ? 'مفروش' : 'Furnished'}</span><strong>{property.furnished ? (language === 'ar' ? 'نعم' : 'Yes') : (language === 'ar' ? 'لا' : 'No')}</strong></div>
               {property.approved_at ? (
                 <div><span>{language === 'ar' ? 'تاريخ موافقة الإدارة' : 'Admin approval date'}</span><strong>{new Date(property.approved_at).toLocaleDateString(language === 'ar' ? 'ar-EG' : 'en-EG')}</strong></div>
               ) : null}
             </div>
 
             <div className="detail-actions">
-              <Link to="/properties" className="btn btn-quiet dark-btn">Back to listings</Link>
+              <Link to="/properties" className="btn btn-quiet dark-btn">{language === 'ar' ? 'العودة إلى العقارات' : 'Back to listings'}</Link>
               {token ? <button type="button" className="btn btn-outline-danger rounded-pill" onClick={() => { setReportOpen((current) => !current); setReportError(''); setReportStatus(''); }}>{t('reportProperty')}</button> : null}
             </div>
             {reportStatus ? <div className="alert alert-success mt-3">{reportStatus}</div> : null}

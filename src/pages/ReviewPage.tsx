@@ -3,10 +3,24 @@ import { useDispatch, useSelector } from '../store/hooks';
 import { fetchAdminProperties, fetchAdminReports } from '../features/admin/adminSlice.js';
 import api from '../services/api.js';
 import { useLanguage } from '../i18n/LanguageContext';
+import { MapContainer, Marker, TileLayer } from 'react-leaflet';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faChevronLeft, faChevronRight } from '@fortawesome/free-solid-svg-icons';
+
+const markerIcon = L.icon({
+  iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+  iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
+  shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  shadowSize: [41, 41]
+});
 
 export default function ReviewPage() {
   const dispatch = useDispatch();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const adminRole = useSelector((state) => state.auth.user?.role || state.user.profile?.role);
   const properties = useSelector((state) => state.admin.properties);
   const reports = useSelector((state) => state.admin.reports);
@@ -14,6 +28,7 @@ export default function ReviewPage() {
   const [workingId, setWorkingId] = useState<number | null>(null);
   const [previewId, setPreviewId] = useState<number | null>(null);
   const [preview, setPreview] = useState(null);
+  const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [actionError, setActionError] = useState('');
   const [reportTab, setReportTab] = useState<'open' | 'closed'>('open');
 
@@ -65,12 +80,14 @@ export default function ReviewPage() {
     if (previewId === Number(id)) {
       setPreviewId(null);
       setPreview(null);
+      setActiveImageIndex(0);
       return;
     }
     try {
       const response = await api.get(`/admin/properties/${id}`);
       setPreviewId(Number(id));
       setPreview(response.data.data);
+      setActiveImageIndex(0);
       setActionError('');
     } catch (error) {
       setActionError(error.response?.data?.message || t('loadPropertyDetailsFailed'));
@@ -104,18 +121,108 @@ export default function ReviewPage() {
             <div key={property.id} className="review-item">
               <div>
                 <strong>{property.title}</strong>
-                <small>{property.status} · {property.property_type} · {property.purpose}</small>
+                <div className="review-summary">
+                  <small>{property.status} · {property.property_type} · {property.purpose}</small>
+                  <small>{language === 'ar' ? 'المالك: ' : 'Owner: '}{property.owner_name || t('user')} · {property.owner_email || '—'}</small>
+                </div>
                 {previewId === Number(property.id) && preview ? (
                   <div className="admin-property-preview">
-                    <p>{preview.description}</p>
-                    <small>{t('price')}: {preview.price} {preview.currency} · {t('areaSqm')}: {preview.area_sqm}</small>
-                    <small>{t('location')}: {preview.city}, {preview.governorate}</small>
-                    {preview.address ? <small>{t('address')}: {preview.address}</small> : null}
                     {Array.isArray(preview.images) && preview.images.length ? (
-                      <div className="admin-preview-images">
-                        {preview.images.map((image) => <img key={image.id} src={image.filePath} alt={image.originalName || preview.title} />)}
+                      <div className="admin-preview-section">
+                        <h3>{language === 'ar' ? `صور الإعلان (${preview.images.length})` : `Listing images (${preview.images.length})`}</h3>
+                        <div className="admin-image-slider">
+                          <div className="admin-image-main">
+                            <img src={preview.images[activeImageIndex]?.filePath} alt={preview.images[activeImageIndex]?.originalName || preview.title} />
+                            {preview.images.length > 1 ? (
+                              <>
+                                <button type="button" className="admin-image-slider-button admin-image-slider-prev" onClick={() => setActiveImageIndex((current) => (current - 1 + preview.images.length) % preview.images.length)} aria-label={language === 'ar' ? 'الصورة السابقة' : 'Previous image'}>
+                                  <FontAwesomeIcon icon={faChevronLeft} />
+                                </button>
+                                <button type="button" className="admin-image-slider-button admin-image-slider-next" onClick={() => setActiveImageIndex((current) => (current + 1) % preview.images.length)} aria-label={language === 'ar' ? 'الصورة التالية' : 'Next image'}>
+                                  <FontAwesomeIcon icon={faChevronRight} />
+                                </button>
+                                <span className="admin-image-slider-counter">{activeImageIndex + 1} / {preview.images.length}</span>
+                              </>
+                            ) : null}
+                          </div>
+                          {preview.images.length > 1 ? (
+                            <div className="admin-image-thumbs">
+                              {preview.images.map((image, index) => (
+                                <button type="button" className={`admin-image-thumb ${index === activeImageIndex ? 'active' : ''}`} key={image.id || index} onClick={() => setActiveImageIndex(index)} aria-label={`${language === 'ar' ? 'عرض الصورة' : 'Show image'} ${index + 1}`}>
+                                  <img src={image.filePath} alt={image.originalName || preview.title} />
+                                </button>
+                              ))}
+                            </div>
+                          ) : null}
+                        </div>
                       </div>
                     ) : <small>{t('noImagesUploaded')}</small>}
+                    <div className="admin-preview-section">
+                      <h3>{language === 'ar' ? 'بيانات صاحب العقار' : 'Owner details'}</h3>
+                      <div className="admin-preview-data">
+                        <div><span>{language === 'ar' ? 'الاسم' : 'Name'}</span><strong>{preview.owner_name || property.owner_name || '—'}</strong></div>
+                        <div><span>{language === 'ar' ? 'البريد الإلكتروني' : 'Email'}</span><strong>{preview.owner_email || property.owner_email || '—'}</strong></div>
+                        <div><span>{language === 'ar' ? 'الهاتف' : 'Phone'}</span><strong>{preview.owner_phone || '—'}</strong></div>
+                        <div><span>{language === 'ar' ? 'رقم العقار' : 'Property ID'}</span><strong>{preview.id || '—'}</strong></div>
+                      </div>
+                    </div>
+                    <div className="admin-preview-section">
+                      <h3>{language === 'ar' ? 'بيانات الإعلان' : 'Listing details'}</h3>
+                      <div className="admin-preview-data">
+                        <div><span>{t('title')}</span><strong>{preview.title || '—'}</strong></div>
+                        <div><span>{t('price')}</span><strong>{Number(preview.price).toLocaleString(language === 'ar' ? 'ar-EG' : 'en-EG')} {preview.currency || ''}</strong></div>
+                        <div><span>{t('areaSqm')}</span><strong>{preview.area_sqm ?? '—'} m²</strong></div>
+                        <div><span>{language === 'ar' ? 'النوع' : 'Type'}</span><strong>{preview.property_type || '—'}</strong></div>
+                        <div><span>{language === 'ar' ? 'الغرض' : 'Purpose'}</span><strong>{preview.purpose || '—'}</strong></div>
+                        <div><span>{language === 'ar' ? 'الحالة' : 'Status'}</span><strong>{preview.status || '—'}</strong></div>
+                        <div><span>{language === 'ar' ? 'العملة' : 'Currency'}</span><strong>{preview.currency || '—'}</strong></div>
+                        <div><span>{language === 'ar' ? 'غرف النوم' : 'Bedrooms'}</span><strong>{preview.bedrooms ?? '—'}</strong></div>
+                        <div><span>{language === 'ar' ? 'الحمامات' : 'Bathrooms'}</span><strong>{preview.bathrooms ?? '—'}</strong></div>
+                        <div><span>{language === 'ar' ? 'الطابق' : 'Floor'}</span><strong>{preview.floor ?? '—'}</strong></div>
+                        <div><span>{language === 'ar' ? 'التأثيث' : 'Furnished'}</span><strong>{preview.furnished ? (language === 'ar' ? 'نعم' : 'Yes') : (language === 'ar' ? 'لا' : 'No')}</strong></div>
+                        <div><span>{language === 'ar' ? 'سنة البناء' : 'Construction year'}</span><strong>{preview.construction_year ?? '—'}</strong></div>
+                      </div>
+                    </div>
+                    <div className="admin-preview-section">
+                      <h3>{language === 'ar' ? 'الموقع' : 'Location'}</h3>
+                      <div className="admin-preview-data">
+                        <div><span>{language === 'ar' ? 'المحافظة' : 'Governorate'}</span><strong>{preview.governorate || '—'}</strong></div>
+                        <div><span>{language === 'ar' ? 'المدينة' : 'City'}</span><strong>{preview.city || '—'}</strong></div>
+                        <div className="admin-preview-wide"><span>{t('address')}</span><strong>{preview.address || '—'}</strong></div>
+                      </div>
+                      {preview.latitude != null && preview.longitude != null ? (
+                        <div className="admin-preview-map">
+                          <MapContainer
+                            center={[Number(preview.latitude), Number(preview.longitude)]}
+                            zoom={14}
+                            scrollWheelZoom={false}
+                            style={{ height: '100%', width: '100%' }}
+                          >
+                            <TileLayer
+                              attribution="&copy; OpenStreetMap contributors"
+                              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                            />
+                            <Marker position={[Number(preview.latitude), Number(preview.longitude)]} icon={markerIcon} />
+                          </MapContainer>
+                        </div>
+                      ) : (
+                        <small>{language === 'ar' ? 'لم يتم تحديد الموقع على الخريطة' : 'No map location selected'}</small>
+                      )}
+                    </div>
+                    <div className="admin-preview-section">
+                      <h3>{language === 'ar' ? 'الوصف' : 'Description'}</h3>
+                      <p>{preview.description || '—'}</p>
+                    </div>
+                    {preview.rejection_reason ? (
+                      <div className="admin-preview-section">
+                        <h3>{language === 'ar' ? 'سبب الرفض' : 'Rejection reason'}</h3>
+                        <p>{preview.rejection_reason}</p>
+                      </div>
+                    ) : null}
+                    <div className="admin-preview-dates">
+                      <small>{language === 'ar' ? 'تاريخ الإرسال: ' : 'Submitted: '}{preview.created_at ? new Date(preview.created_at).toLocaleString(language === 'ar' ? 'ar-EG' : 'en-EG') : '—'}</small>
+                      <small>{language === 'ar' ? 'آخر تحديث: ' : 'Updated: '}{preview.updated_at ? new Date(preview.updated_at).toLocaleString(language === 'ar' ? 'ar-EG' : 'en-EG') : '—'}</small>
+                    </div>
                   </div>
                 ) : null}
               </div>

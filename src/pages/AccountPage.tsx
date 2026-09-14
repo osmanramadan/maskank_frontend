@@ -1,6 +1,8 @@
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from '../store/hooks';
 import { Link } from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faPlus } from '@fortawesome/free-solid-svg-icons';
 import { deleteProperty, fetchMyProperties } from '../features/properties/propertySlice.js';
 import { useLanguage } from '../i18n/LanguageContext';
 
@@ -12,7 +14,16 @@ export default function AccountPage() {
   const role = authUser?.role || 'USER';
   const roleLabel = language === 'ar'
     ? ({ USER: 'مشتري / مستأجر', OWNER: 'مالك عقار', BROKER: 'وسيط عقاري', ADMIN: 'مدير' }[role] || role)
-    : role;
+    : ({ USER: 'Buyer / renter', OWNER: 'Property owner', BROKER: 'Real estate broker', ADMIN: 'Administrator' }[role] || role);
+  const statusLabel = (status) => {
+    const labels = {
+      approved: language === 'ar' ? 'مقبول' : 'Approved',
+      pending: language === 'ar' ? 'قيد المراجعة' : 'Pending review',
+      rejected: language === 'ar' ? 'مرفوض' : 'Rejected',
+      draft: language === 'ar' ? 'مسودة' : 'Draft'
+    };
+    return labels[status] || status;
+  };
 
   useEffect(() => {
     if (role === 'OWNER' || role === 'BROKER') {
@@ -28,7 +39,7 @@ export default function AccountPage() {
 
   return (
     <section className="auth-page-shell">
-      <div className="container">
+      <div className="container account-layout">
         <div className="auth-card account-card mb-4">
           <p className="eyebrow dark">{t('myAccount')}</p>
           <h1>{t('welcomeBack')}, {authUser?.full_name || authUser?.fullName || t('account')}.</h1>
@@ -48,13 +59,15 @@ export default function AccountPage() {
         </div>
 
         {(role === 'OWNER' || role === 'BROKER') && (
-          <div className="auth-card">
+          <div className="auth-card account-listings-card">
             <div className="d-flex justify-content-between align-items-center gap-3 mb-3 flex-wrap">
               <div>
-                <p className="eyebrow dark">{t('ownerTools')}</p>
                 <h2>{t('yourListings')}</h2>
               </div>
-              <Link to="/add-property" className="btn btn-primary rounded-pill">{t('addProperty')}</Link>
+              <Link to="/add-property" className="btn account-add-property">
+                <FontAwesomeIcon icon={faPlus} aria-hidden="true" />
+                <span>{t('addProperty')}</span>
+              </Link>
             </div>
 
             {!ownerProperties.length ? (
@@ -65,10 +78,10 @@ export default function AccountPage() {
                   <div key={property.id} className="owner-listing-item">
                     <div className="owner-listing-copy">
                       <strong>{property.title}</strong>
-                      <span>{property.status}</span>
+                      <span>{statusLabel(property.status)}</span>
                       <small>{property.address}</small>
-                      {property.status === 'rejected' && property.rejection_reason ? <small className="text-danger">{language === 'ar' ? 'السبب: ' : 'Reason: '}{property.rejection_reason}</small> : null}
-                      {property.status === 'rejected' ? <small>{language === 'ar' ? 'عدّل هذا الإعلان لإرساله للمراجعة مرة أخرى.' : 'Edit this listing to submit it for review again.'}</small> : null}
+                      {property.status === 'rejected' && property.rejection_reason ? <small className="text-danger">{t('rejectionReason')}: {property.rejection_reason}</small> : null}
+                      {property.status === 'rejected' ? <small>{t('editListingHint')}</small> : null}
                     </div>
                     <div className="owner-listing-actions">
                       {property.status === 'approved' ? <Link to={`/properties/${property.id}`} className="btn btn-outline-primary rounded-pill">{t('view')}</Link> : null}
