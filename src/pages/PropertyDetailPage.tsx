@@ -16,7 +16,10 @@ import {
   faChevronLeft,
   faChevronRight,
   faXmark,
-  faSpinner
+  faSpinner,
+  faShareNodes,
+  faFlag,
+  faComment
 } from '@fortawesome/free-solid-svg-icons';
 import { clearSelectedProperty, fetchProperty } from '../features/properties/propertySlice.js';
 import { addFavorite, removeFavorite } from '../features/favorites/favoriteSlice.js';
@@ -160,164 +163,139 @@ export default function PropertyDetailPage() {
   };
 
 
+  const openReport = () => {
+    setReportError('');
+    setReportStatus('');
+    if (!token) {
+      setReportError(language === 'ar' ? 'يجب تسجيل الدخول أولًا لإرسال بلاغ عن العقار.' : 'You must sign in first to report this property.');
+      return;
+    }
+    setReportOpen((current) => !current);
+  };
+
   return (
     <section className="page-shell property-detail-shell">
       <div className="container">
         <nav className="breadcrumb-row">
-          <Link to="/">{language === 'ar' ? 'الرئيسية' : 'Home'}</Link>
-          <span>/</span>
-          <Link to="/properties">{language === 'ar' ? 'العقارات' : 'Properties'}</Link>
-          <span>/</span>
+          <Link to="/">{language === 'ar' ? 'الرئيسية' : 'Home'}</Link><span>/</span>
+          <Link to="/properties">{language === 'ar' ? 'العقارات' : 'Properties'}</Link><span>/</span>
           <span>{property.title}</span>
         </nav>
 
-        <div className="property-detail-card">
-          <div className="property-image-panel">
-            <div className="property-slider">
-              <img
-                src={coverImage}
-                alt={`${property.title} ${activeImageIndex + 1}`}
-                className="property-main-image"
-                onClick={() => setLightboxOpen(true)}
-                onError={(event) => { if (event.currentTarget.src !== defaultPropertyImage) event.currentTarget.src = defaultPropertyImage; }}
-              />
-              {images.length > 1 ? (
-                <>
-                  <button type="button" className="property-slider-button property-slider-prev" onClick={showPreviousImage} aria-label="Previous image">
-                    <FontAwesomeIcon icon={faChevronLeft} />
-                  </button>
-                  <button type="button" className="property-slider-button property-slider-next" onClick={showNextImage} aria-label="Next image">
-                    <FontAwesomeIcon icon={faChevronRight} />
-                  </button>
-                  <span className="property-slider-counter">{activeImageIndex + 1} / {images.length}</span>
-                </>
-              ) : null}
-            </div>
-            <div className="property-thumb-row">
-              {images.map((image, index) => (
-                <button type="button" className={`property-thumb-button ${index === activeImageIndex ? 'active' : ''}`} key={image.id || index} onClick={() => setActiveImageIndex(index)} aria-label={`Show image ${index + 1}`}>
-                  <img src={getImageUrl(image.filePath)} alt={`${property.title} ${index + 1}`} onError={(event) => { if (event.currentTarget.src !== defaultPropertyImage) event.currentTarget.src = defaultPropertyImage; }} />
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <div className="property-info-panel">
+        <header className="property-detail-header">
+          <div className="property-detail-heading">
             <div className="property-meta-header">
-              <Link
-                className="property-chip property-chip-link"
-                to={`/properties?purpose=${property.purpose === 'sale' ? 'sale' : 'rent'}`}
-              >
+              <Link className="property-chip property-chip-link" to={`/properties?purpose=${property.purpose === 'sale' ? 'sale' : 'rent'}`}>
                 {property.purpose === 'sale' ? (language === 'ar' ? 'للبيع' : 'For sale') : (language === 'ar' ? 'للإيجار' : 'For rent')}
               </Link>
-              <Link
-                className="property-chip property-chip-link light"
-                to={`/properties?type=${encodeURIComponent(propertyTypeKey)}`}
-              >
-                {propertyTypeLabel}
-              </Link>
+              <Link className="property-chip property-chip-link light" to={`/properties?type=${encodeURIComponent(propertyTypeKey)}`}>{propertyTypeLabel}</Link>
             </div>
             <h1>{property.title}</h1>
-            {token ? <button type="button" disabled={favoriteLoading} className={`favorite-button detail-favorite-button ${isFavorite ? 'is-favorite' : ''}`} aria-label={isFavorite ? (language === 'ar' ? 'إزالة من المفضلة' : 'Remove from favorites') : (language === 'ar' ? 'إضافة إلى المفضلة' : 'Add to favorites')} onClick={() => void handleFavoriteClick()}><FontAwesomeIcon icon={favoriteLoading ? faSpinner : faHeart} spin={favoriteLoading} /> <span>{favoriteLoading ? (language === 'ar' ? 'جارٍ الحفظ...' : 'Saving...') : (isFavorite ? (language === 'ar' ? 'تم الحفظ' : 'Saved') : (language === 'ar' ? 'حفظ' : 'Save'))}</span></button> : null}
-            <div className="property-price-row">
-              <strong>{Number(property.price).toLocaleString('en-EG')} {property.currency}</strong>
-              <span className="property-view-count">
-                {language === 'ar' ? `${Number(property.view_count || 0).toLocaleString('ar-EG')} مشاهدة` : `${Number(property.view_count || 0).toLocaleString('en-EG')} views`}
-              </span>
-            </div>
-            <div className="location-line">
-              <FontAwesomeIcon icon={faMapMarkerAlt} />
+            <div className="property-detail-location"><FontAwesomeIcon icon={faMapMarkerAlt} /> {property.address || `${property.city}, ${property.governorate}`}</div>
+          </div>
+          <div className="property-detail-price">
+            <strong>{Number(property.price).toLocaleString('en-EG')} {property.currency}</strong>
+            <span>{language === 'ar' ? 'السعر المطلوب' : 'Asking price'}</span>
+            <small>{language === 'ar' ? `${Number(property.view_count || 0).toLocaleString('ar-EG')} مشاهدة` : `${Number(property.view_count || 0).toLocaleString('en-EG')} views`}</small>
+          </div>
+        </header>
+
+        <div className="property-gallery">
+          <div className="property-gallery-main property-slider">
+            <img src={coverImage} alt={`${property.title} ${activeImageIndex + 1}`} onClick={() => setLightboxOpen(true)} onError={(event) => { if (event.currentTarget.src !== defaultPropertyImage) event.currentTarget.src = defaultPropertyImage; }} />
+            {images.length > 1 ? <><button type="button" className="property-slider-button property-slider-prev" onClick={showPreviousImage} aria-label="Previous image"><FontAwesomeIcon icon={faChevronLeft} /></button><button type="button" className="property-slider-button property-slider-next" onClick={showNextImage} aria-label="Next image"><FontAwesomeIcon icon={faChevronRight} /></button><span className="property-slider-counter">{activeImageIndex + 1} / {images.length}</span></> : null}
+          </div>
+          <div className="property-gallery-side">
+            {images.slice(1, 3).map((image, index) => (
+              <button type="button" className="property-gallery-side-image" key={image.id || index} onClick={() => setActiveImageIndex(index + 1)}>
+                <img src={getImageUrl(image.filePath)} alt={`${property.title} ${index + 2}`} onError={(event) => { if (event.currentTarget.src !== defaultPropertyImage) event.currentTarget.src = defaultPropertyImage; }} />
+                {index === 1 && images.length > 3 ? <span>+{images.length - 3} {language === 'ar' ? 'صور' : 'photos'}</span> : null}
+              </button>
+            ))}
+            {images.length < 2 ? <div className="property-gallery-placeholder" /> : null}
+          </div>
+        </div>
+
+        <nav className="property-section-nav" aria-label={language === 'ar' ? 'أقسام الإعلان' : 'Listing sections'}>
+          <a href="#property-details">{language === 'ar' ? 'التفاصيل' : 'Details'}</a>
+          <a href="#property-description">{language === 'ar' ? 'الوصف' : 'Description'}</a>
+          <a href="#property-location">{language === 'ar' ? 'الموقع' : 'Location'}</a>
+          <a href="#property-contact">{language === 'ar' ? 'تواصل مع المعلن' : 'Contact'}</a>
+        </nav>
+
+        <div className="property-detail-actions">
+          <button type="button" className={`property-action-button ${isFavorite ? 'is-favorite' : ''}`} disabled={!token || favoriteLoading} onClick={() => void handleFavoriteClick()}><FontAwesomeIcon icon={favoriteLoading ? faSpinner : faHeart} spin={favoriteLoading} /><span>{language === 'ar' ? 'حفظ' : 'Save'}</span></button>
+          <button type="button" className="property-action-button" onClick={() => { if (navigator.share) void navigator.share({ title: property.title, url: window.location.href }); }}><FontAwesomeIcon icon={faShareNodes} /><span>{language === 'ar' ? 'مشاركة' : 'Share'}</span></button>
+          <button type="button" className="property-action-button" onClick={openReport}><FontAwesomeIcon icon={faFlag} /><span>{language === 'ar' ? 'إبلاغ' : 'Report'}</span></button>
+        </div>
+        {reportStatus ? <div className="alert alert-success mt-3">{reportStatus}</div> : null}
+        {reportError && !reportOpen ? <div className="alert alert-warning mt-3">{reportError}</div> : null}
+        {reportOpen ? (
+          <form className="report-form mt-3" onSubmit={submitReport}>
+            <label><span>{t('reportReason')}</span><select value={reportReason} onChange={(event) => setReportReason(event.target.value)}>{reportReasons.map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></label>
+            <label><span>{t('reportDetails')}</span><textarea value={reportDetails} onChange={(event) => setReportDetails(event.target.value)} maxLength={1000} placeholder={t('reportDetailsPlaceholder')} /></label>
+            {reportError ? <div className="alert alert-danger">{reportError}</div> : null}
+            <button type="submit" className="btn btn-danger rounded-pill" disabled={reporting}>{reporting ? t('sending') : t('sendReport')}</button>
+          </form>
+        ) : null}
+
+        <div className="property-content-layout">
+          <main className="property-content-main">
+            <section id="property-details" className="property-detail-section">
+              <h2>{language === 'ar' ? 'تفاصيل الإعلان' : 'Listing details'}</h2>
+              <div className="stats-grid">
+                <div><FontAwesomeIcon icon={faBed} /><strong>{property.bedrooms ?? 0}</strong><span>{language === 'ar' ? 'غرف نوم' : 'Bedrooms'}</span></div>
+                <div><FontAwesomeIcon icon={faBath} /><strong>{property.bathrooms ?? 0}</strong><span>{language === 'ar' ? 'حمامات' : 'Bathrooms'}</span></div>
+                <div><FontAwesomeIcon icon={faRulerCombined} /><strong>{property.area_sqm}</strong><span>{language === 'ar' ? 'م²' : 'sqm'}</span></div>
+                <div><FontAwesomeIcon icon={faBuilding} /><strong>{property.floor ?? '—'}</strong><span>{language === 'ar' ? 'الطابق' : 'Floor'}</span></div>
+              </div>
+              <div className="detail-info-panel">
+                <div><span>{language === 'ar' ? 'المحافظة' : 'Governorate'}</span><strong>{property.governorate}</strong></div>
+                <div><span>{language === 'ar' ? 'المدينة' : 'City'}</span><strong>{property.city}</strong></div>
+                <div><span>{language === 'ar' ? 'نوع الإعلان' : 'Listing type'}</span><strong>{propertyTypeLabel}</strong></div>
+                <div><span>{language === 'ar' ? 'مفروش' : 'Furnished'}</span><strong>{property.furnished ? (language === 'ar' ? 'نعم' : 'Yes') : (language === 'ar' ? 'لا' : 'No')}</strong></div>
+                <div><span>{language === 'ar' ? 'سعر المتر' : 'Price per sqm'}</span><strong>{property.area_sqm ? `${(Number(property.price) / Number(property.area_sqm)).toLocaleString('en-EG', { maximumFractionDigits: 0 })} ${property.currency}/${language === 'ar' ? 'م²' : 'sqm'}` : '—'}</strong></div>
+                <div><span>{language === 'ar' ? 'رقم الإعلان' : 'Listing number'}</span><strong>EG-{property.id}</strong></div>
+              </div>
+            </section>
+
+            <section id="property-description" className="property-detail-section">
+              <h2>{language === 'ar' ? 'وصف العقار' : 'Property description'}</h2>
+              <p className="property-description">{property.description || (language === 'ar' ? 'لا يوجد وصف لهذا العقار.' : 'No description provided.')}</p>
+            </section>
+
+            <section id="property-location" className="property-detail-section">
+              <h2>{language === 'ar' ? 'الموقع على الخريطة' : 'Location on map'}</h2>
               {property.latitude && property.longitude ? (
-                <div className="detail-map-wrapper" style={{ width: '100%', maxWidth: 420, height: 360 }}>
-                  <MapContainer
-                    className="property-location-map"
-                    center={[Number(property.latitude), Number(property.longitude)]}
-                    zoom={8}
-                    scrollWheelZoom={false}
-                    style={{ height: '100%', width: '100%' }}
-                  >
-                    <TileLayer
-                      attribution='&copy; OpenStreetMap contributors'
-                      url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                    />
+                <div className="detail-map-wrapper">
+                  <MapContainer className="property-location-map" center={[Number(property.latitude), Number(property.longitude)]} zoom={8} scrollWheelZoom={false}>
+                    <TileLayer attribution="&copy; OpenStreetMap contributors" url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
                     <Marker position={[Number(property.latitude), Number(property.longitude)]} icon={markerIcon} />
                   </MapContainer>
                 </div>
-              ) : (
-                <span>{property.address}</span>
-              )}
-            </div>
-            <p className="property-description">{property.description}</p>
+              ) : <p className="property-description">{property.address}</p>}
+            </section>
+          </main>
 
-            <div className="stats-grid">
-              <div><FontAwesomeIcon icon={faBed} /><strong>{property.bedrooms ?? 0}</strong><span>{language === 'ar' ? 'غرف نوم' : 'Bedrooms'}</span></div>
-              <div><FontAwesomeIcon icon={faBath} /><strong>{property.bathrooms ?? 0}</strong><span>{language === 'ar' ? 'حمامات' : 'Bathrooms'}</span></div>
-              <div><FontAwesomeIcon icon={faRulerCombined} /><strong>{property.area_sqm}</strong><span>{language === 'ar' ? 'م²' : 'sqm'}</span></div>
-              <div><FontAwesomeIcon icon={faBuilding} /><strong>{property.floor ?? '—'}</strong><span>{language === 'ar' ? 'الطابق' : 'Floor'}</span></div>
-            </div>
-
-            <div className="detail-info-panel">
-              <div><span>{language === 'ar' ? 'المحافظة' : 'Governorate'}</span><strong>{property.governorate}</strong></div>
-              <div><span>{language === 'ar' ? 'المدينة' : 'City'}</span><strong>{property.city}</strong></div>
-              <div><span>{language === 'ar' ? 'مفروش' : 'Furnished'}</span><strong>{property.furnished ? (language === 'ar' ? 'نعم' : 'Yes') : (language === 'ar' ? 'لا' : 'No')}</strong></div>
-              {property.created_at ? (
-                <div><span>{language === 'ar' ? 'تاريخ الإضافة' : 'Added date'}</span><strong>{new Date(property.created_at).toLocaleDateString(language === 'ar' ? 'ar-EG' : 'en-EG')}</strong></div>
-              ) : null}
-            </div>
-            {property.contact_phone || property.whatsapp_phone ? (
-              <div className="property-contact-card">
-                <h3>{language === 'ar' ? 'بيانات التواصل' : 'Contact details'}</h3>
-                <div className="property-contact-actions">
-                  {property.whatsapp_phone ? <a className="property-contact-button whatsapp" href={`https://wa.me/20${String(property.whatsapp_phone).slice(1)}`} target="_blank" rel="noreferrer">{language === 'ar' ? 'واتساب' : 'WhatsApp'}</a> : null}
-                  {property.contact_phone ? <a className="property-contact-button phone" href={`tel:${property.contact_phone}`}>{language === 'ar' ? 'اتصال' : 'Call'} <span dir="ltr">{property.contact_phone}</span></a> : null}
-                </div>
+          <aside id="property-contact" className="property-detail-sidebar">
+            <section className="property-contact-card">
+              <h2><FontAwesomeIcon icon={faComment} /> {language === 'ar' ? 'تواصل مع المعلن' : 'Contact advertiser'}</h2>
+              {property.owner_id ? <Link className="property-owner-link" to={`/users/${property.owner_id}`}>{property.owner_avatar_url ? <img src={property.owner_avatar_url} alt="" /> : null}<strong>{property.owner_name || (language === 'ar' ? 'صاحب الإعلان' : 'Advertiser')}</strong><span>{language === 'ar' ? 'عرض الملف' : 'View profile'}</span></Link> : null}
+              <div className="property-contact-actions">
+                {property.whatsapp_phone ? <a className="property-contact-button whatsapp" href={`https://wa.me/20${String(property.whatsapp_phone).slice(1)}`} target="_blank" rel="noreferrer">{language === 'ar' ? 'واتساب' : 'WhatsApp'}</a> : null}
+                {property.contact_phone ? <a className="property-contact-button phone" href={`tel:${property.contact_phone}`}>{language === 'ar' ? 'اتصال' : 'Call'} <span dir="ltr">{property.contact_phone}</span></a> : null}
               </div>
-            ) : null}
-            {property.owner_id ? (
-              <div className="property-owner-card">
-                <span className="property-owner-label">{language === 'ar' ? 'صاحب الإعلان' : 'Listed by'}</span>
-                <Link className="property-owner-link" to={`/users/${property.owner_id}`}>
-                  {property.owner_avatar_url ? <img src={property.owner_avatar_url} alt="" /> : null}
-                  <strong>{property.owner_name || (language === 'ar' ? 'عرض الملف الشخصي' : 'View profile')}</strong>
-                  <span>{language === 'ar' ? 'عرض الملف الشخصي' : 'View profile'}</span>
-                </Link>
-              </div>
-            ) : null}
-
-            <div className="detail-actions">
-              <Link to="/properties" className="btn btn-quiet dark-btn">{language === 'ar' ? 'العودة إلى العقارات' : 'Back to listings'}</Link>
-              <button type="button" className="btn btn-outline-danger rounded-pill" onClick={() => {
-                setReportError('');
-                setReportStatus('');
-                if (!token) {
-                  setReportOpen(false);
-                  setReportError(language === 'ar' ? 'يجب تسجيل الدخول أولًا لإرسال بلاغ عن العقار.' : 'You must sign in first to report this property.');
-                  return;
-                }
-                setReportOpen((current) => !current);
-              }}>{t('reportProperty')}</button>
-            </div>
-            {reportStatus ? <div className="alert alert-success mt-3">{reportStatus}</div> : null}
-            {reportError && !reportOpen ? <div className="alert alert-warning mt-3">{reportError}</div> : null}
-            {reportOpen ? (
-              <form className="report-form mt-3" onSubmit={submitReport}>
-                <label>
-                  <span>{t('reportReason')}</span>
-                  <select value={reportReason} onChange={(event) => setReportReason(event.target.value)}>
-                    {reportReasons.map(([value, label]) => <option key={value} value={value}>{label}</option>)}
-                  </select>
-                </label>
-                <label>
-                  <span>{t('reportDetails')}</span>
-                  <textarea value={reportDetails} onChange={(event) => setReportDetails(event.target.value)} maxLength={1000} placeholder={t('reportDetailsPlaceholder')} />
-                </label>
-                {reportError ? <div className="alert alert-danger">{reportError}</div> : null}
-                <button type="submit" className="btn btn-danger rounded-pill" disabled={reporting}>{reporting ? t('sending') : t('sendReport')}</button>
-              </form>
-            ) : null}
-          </div>
+            </section>
+            <Link to="/properties" className="btn btn-quiet dark-btn property-back-button">{language === 'ar' ? 'العودة إلى العقارات' : 'Back to listings'}</Link>
+          </aside>
         </div>
       </div>
+      {(property.whatsapp_phone || property.contact_phone) ? (
+        <div className="mobile-contact-bar">
+          {property.contact_phone ? <a className="mobile-contact-call" href={`tel:${property.contact_phone}`} aria-label={language === 'ar' ? 'اتصال' : 'Call'}>☎</a> : null}
+          {property.whatsapp_phone ? <a className="property-contact-button whatsapp" href={`https://wa.me/20${String(property.whatsapp_phone).slice(1)}`} target="_blank" rel="noreferrer">{language === 'ar' ? 'واتساب' : 'WhatsApp'}</a> : null}
+        </div>
+      ) : null}
       {lightboxOpen ? (
         <div className="property-lightbox" role="dialog" aria-modal="true" aria-label="Property image gallery" onClick={() => setLightboxOpen(false)}>
           <button type="button" className="property-lightbox-close" onClick={() => setLightboxOpen(false)} aria-label="Close gallery">
