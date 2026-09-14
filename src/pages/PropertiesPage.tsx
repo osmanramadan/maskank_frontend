@@ -37,7 +37,7 @@ function getImageUrl(filePath?: string | null) {
 export default function PropertiesPage() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { t } = useLanguage();
+  const { language, t } = useLanguage();
   const [searchParams, setSearchParams] = useSearchParams();
   const { items, pagination, status, error } = useSelector((state) => state.properties);
   const token = useSelector((state) => state.auth.token);
@@ -173,6 +173,7 @@ export default function PropertiesPage() {
                     <span><FontAwesomeIcon icon={faBed} /> {property.bedrooms ?? 0}</span>
                     <span><FontAwesomeIcon icon={faBath} /> {property.bathrooms ?? 0}</span>
                     <span><FontAwesomeIcon icon={faRulerCombined} /> {property.area_sqm} sqm</span>
+                    <span>{language === 'ar' ? `${Number(property.view_count || 0).toLocaleString('ar-EG')} مشاهدة` : `${Number(property.view_count || 0).toLocaleString('en-EG')} views`}</span>
                   </div>
                 </div>
                 </Link>

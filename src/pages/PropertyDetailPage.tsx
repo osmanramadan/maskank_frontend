@@ -209,6 +209,9 @@ export default function PropertyDetailPage() {
             {token ? <button type="button" className={`favorite-button detail-favorite-button ${isFavorite ? 'is-favorite' : ''}`} aria-label={isFavorite ? (language === 'ar' ? 'إزالة من المفضلة' : 'Remove from favorites') : (language === 'ar' ? 'إضافة إلى المفضلة' : 'Add to favorites')} onClick={() => dispatch(isFavorite ? removeFavorite(property.id) : addFavorite(property.id))}><FontAwesomeIcon icon={faHeart} /> <span>{isFavorite ? (language === 'ar' ? 'تم الحفظ' : 'Saved') : (language === 'ar' ? 'حفظ' : 'Save')}</span></button> : null}
             <div className="property-price-row">
               <strong>{Number(property.price).toLocaleString('en-EG')} {property.currency}</strong>
+              <span className="property-view-count">
+                {language === 'ar' ? `${Number(property.view_count || 0).toLocaleString('ar-EG')} مشاهدة` : `${Number(property.view_count || 0).toLocaleString('en-EG')} views`}
+              </span>
             </div>
             <div className="location-line">
               <FontAwesomeIcon icon={faMapMarkerAlt} />
@@ -253,7 +256,7 @@ export default function PropertyDetailPage() {
               <div className="property-contact-card">
                 <h3>{language === 'ar' ? 'بيانات التواصل' : 'Contact details'}</h3>
                 <div className="property-contact-actions">
-                  {property.whatsapp_phone ? <a className="property-contact-button whatsapp" href={`https://wa.me/2${String(property.whatsapp_phone).slice(1)}`} target="_blank" rel="noreferrer">{language === 'ar' ? 'واتساب' : 'WhatsApp'}</a> : null}
+                  {property.whatsapp_phone ? <a className="property-contact-button whatsapp" href={`https://wa.me/20${String(property.whatsapp_phone).slice(1)}`} target="_blank" rel="noreferrer">{language === 'ar' ? 'واتساب' : 'WhatsApp'}</a> : null}
                   {property.contact_phone ? <a className="property-contact-button phone" href={`tel:${property.contact_phone}`}>{language === 'ar' ? 'اتصال' : 'Call'} <span dir="ltr">{property.contact_phone}</span></a> : null}
                 </div>
               </div>

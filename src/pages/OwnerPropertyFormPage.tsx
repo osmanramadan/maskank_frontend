@@ -136,6 +136,8 @@ export default function OwnerPropertyFormPage() {
   const [images, setImages] = useState<File[]>([]);
   const [governorates, setGovernorates] = useState<Location[]>([]);
   const [cities, setCities] = useState<City[]>([]);
+  const [step, setStep] = useState(1);
+  const [submittedPropertyId, setSubmittedPropertyId] = useState<number | string | null>(null);
 
   useEffect(() => {
     if (!token || !['USER', 'OWNER', 'BROKER', 'COMPANY', 'ADMIN'].includes(role || '')) return;
@@ -264,7 +266,8 @@ export default function OwnerPropertyFormPage() {
       }
 
       dispatch(fetchProperties({ page: 1, limit: 12 }));
-      navigate('/account');
+      setSubmittedPropertyId(propertyId);
+      setStep(4);
     } catch (submitError) {
       setError(localizedError(submitError, language, t('savePropertyFailed')));
     } finally {
@@ -294,6 +297,71 @@ export default function OwnerPropertyFormPage() {
     setForm((current) => ({ ...current, latitude, longitude }));
   };
 
+  const goToNextStep = () => {
+    if (step === 1 && (!String(form.title).trim() || !String(form.description).trim() || !form.price || !form.area_sqm)) {
+      setError(language === 'ar' ? 'أكمل العنوان والوصف والسعر والمساحة أولًا.' : 'Complete the title, description, price, and area first.');
+      return;
+    }
+    if (step === 2 && (!form.governorate_id || !form.city_id)) {
+      setError(language === 'ar' ? 'اختر المحافظة والمدينة أولًا.' : 'Select the governorate and city first.');
+      return;
+    }
+    setError('');
+    setStep((current) => current + 1);
+  };
+
+  const stepLabels = language === 'ar'
+    ? ['البيانات الأساسية', 'التفاصيل والموقع', 'الصور والتواصل', 'الدفع والنجاح']
+    : ['Basic information', 'Details and location', 'Images and contact', 'Payment and success'];
+
+  if (step === 4 && submittedPropertyId) {
+    return (
+      <section className="page-shell">
+        <div className="container" style={{ maxWidth: 760 }}>
+          <div className="auth-card property-success-card text-center">
+            <div className="property-success-icon">✓</div>
+            <p className="eyebrow dark">{language === 'ar' ? 'تمت إضافة الإعلان' : 'Listing submitted'}</p>
+            <h2>{language === 'ar' ? 'إعلانك جاهز للمراجعة' : 'Your listing is ready for review'}</h2>
+            <p className="page-copy">
+              {language === 'ar'
+                ? 'سيتم عرض الإعلان بعد مراجعة وموافقة الأدمن. لإكمال النشر، يرجى تحويل 200 جنيه.'
+                : 'The listing will be published after admin approval. To complete publishing, please transfer EGP 200.'}
+            </p>
+            <div className="payment-instructions" dir={language === 'ar' ? 'rtl' : 'ltr'}>
+              <strong>{language === 'ar' ? 'تحويل فودافون كاش' : 'Vodafone Cash transfer'}</strong>
+              <span>{language === 'ar' ? 'المبلغ: 200 جنيه' : 'Amount: EGP 200'}</span>
+              <a className="payment-transfer-link" href="tel:*9*7*01027528199*200%23" dir="ltr">
+                {language === 'ar' ? 'اضغط لتحويل 200 جنيه' : 'Tap to transfer EGP 200'}
+                <span className="payment-phone">01027528199</span>
+              </a>
+              <small>
+                {language === 'ar'
+                  ? 'سيتم فتح تطبيق الاتصال بكود فودافون كاش الجاهز للتحويل.'
+                  : 'Your phone dialer will open with the Vodafone Cash transfer code.'}
+              </small>
+              <a
+                className="payment-receipt-link"
+                href={`https://wa.me/201027528199?text=${encodeURIComponent(language === 'ar' ? 'مرحبًا، أرسل إيصال دفع إعلان العقار رقم ' + submittedPropertyId : `Hello, I am sending the payment receipt for property ${submittedPropertyId}`)}`}
+                target="_blank"
+                rel="noreferrer"
+              >
+                {language === 'ar' ? 'إرسال إيصال الدفع عبر واتساب' : 'Send payment receipt on WhatsApp'}
+              </a>
+            </div>
+            <p className="form-hint">
+              {language === 'ar'
+                ? 'بعد التحويل، أرسل إثبات الدفع للإدارة عند الحاجة. سيظل الإعلان قيد المراجعة حتى اعتماد الأدمن.'
+                : 'After transferring, send proof of payment to the administration if requested. The listing remains pending until approved.'}
+            </p>
+            <button type="button" className="btn btn-primary rounded-pill" onClick={() => navigate('/account')}>
+              {language === 'ar' ? 'الذهاب إلى حسابي' : 'Go to my account'}
+            </button>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section className="page-shell">
       <div className="container" style={{ maxWidth: 980 }}>
@@ -301,11 +369,18 @@ export default function OwnerPropertyFormPage() {
           <p className="eyebrow dark">{t('ownerTools')}</p>
           <h2>{id ? t('editProperty') : t('listProperty')}</h2>
         </div>
+        <div className="property-stepper" aria-label={language === 'ar' ? 'مراحل إضافة العقار' : 'Property listing steps'}>
+          {stepLabels.map((label, index) => (
+            <div className={`property-step ${step >= index + 1 ? 'active' : ''}`} key={label}>
+              <span>{index + 1}</span><small>{label}</small>
+            </div>
+          ))}
+        </div>
 
         <form className="auth-card property-form" onSubmit={handleSubmit}>
           {error ? <div className="alert alert-danger">{error}</div> : null}
 
-          <div className="row g-3">
+          {step === 1 && (<div className="row g-3">
             <div className="col-md-8">
               <label>
                 <span>{t('title')}</span>
@@ -388,7 +463,9 @@ export default function OwnerPropertyFormPage() {
                 <textarea name="description" rows="5" value={form.description} onChange={handleChange} required />
               </label>
             </div>
+          </div>)}
 
+          {step === 2 && (<div className="row g-3">
             <div className="col-md-6">
               <label>
                 <span>{language === 'ar' ? 'رقم الاتصال بالإعلان' : 'Listing call number'}</span>
@@ -477,7 +554,9 @@ export default function OwnerPropertyFormPage() {
                 </small>
               </label>
             </div>
+          </div>)}
 
+          {step === 3 && (<div className="row g-3">
             <div className="col-12">
               <label>
                 <span>{language === 'ar' ? 'اختر صور العقار' : 'Choose property images'}</span>
@@ -487,12 +566,23 @@ export default function OwnerPropertyFormPage() {
                 </small>
               </label>
             </div>
-          </div>
+          </div>)}
 
-          <div className="detail-actions mt-4">
-            <button type="submit" className="btn btn-primary rounded-pill" disabled={loading}>
-              {loading ? t('saving') : (id ? t('updateListing') : t('submitListing'))}
-            </button>
+          <div className="detail-actions mt-4 property-step-actions">
+            {step > 1 ? (
+              <button type="button" className="btn btn-quiet dark-btn rounded-pill" onClick={() => setStep((current) => current - 1)} disabled={loading}>
+                {language === 'ar' ? 'السابق' : 'Back'}
+              </button>
+            ) : null}
+            {step < 3 ? (
+              <button type="button" className="btn btn-primary rounded-pill" onClick={goToNextStep}>
+                {language === 'ar' ? 'التالي' : 'Next'}
+              </button>
+            ) : (
+              <button type="submit" className="btn btn-primary rounded-pill" disabled={loading}>
+                {loading ? t('saving') : (id ? t('updateListing') : (language === 'ar' ? 'إضافة الإعلان والمتابعة للدفع' : 'Submit and continue to payment'))}
+              </button>
+            )}
           </div>
         </form>
       </div>

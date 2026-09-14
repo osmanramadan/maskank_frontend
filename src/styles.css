@@ -255,6 +255,7 @@ h1 em { color: var(--accent); font-family: 'Fraunces', serif; font-weight: 500; 
 .property-chip-link:hover, .property-chip-link:focus-visible { color: var(--forest); background: #DDC89E; }
 .property-price-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-top: 12px; }
 .property-price-row strong { font-size: 2rem; color: var(--forest); }
+.property-view-count { color: var(--muted); font-size: .85rem; white-space: nowrap; }
 .location-line { display: flex; align-items: center; gap: 8px; color: var(--muted); margin: 14px 0 18px; }
 .property-description { color: var(--muted); line-height: 1.8; }
 .stats-grid { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 14px; margin-top: 22px; }
@@ -284,6 +285,25 @@ textarea { width: 100%; border: 1px solid var(--line); border-radius: 10px; padd
 .property-form label { display: flex; flex-direction: column; gap: 8px; color: var(--ink); font-weight: 600; }
 .property-form input, .property-form select, .property-form textarea { border: 1px solid var(--line); border-radius: 10px; min-height: 48px; padding: 0 14px; background: #fff; color: var(--ink); }
 .property-form textarea { min-height: 120px; padding: 12px 14px; }
+.property-stepper { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 0 auto 22px; max-width: 980px; }
+.property-step { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: .82rem; }
+.property-step span { display: grid; place-items: center; width: 32px; height: 32px; flex: 0 0 32px; border: 1px solid var(--line); border-radius: 50%; background: #fff; }
+.property-step.active { color: var(--forest); font-weight: 700; }
+.property-step.active span { background: var(--forest); border-color: var(--forest); color: #fff; }
+.property-step-actions { justify-content: space-between; }
+.property-success-card { max-width: 760px; margin: 0 auto; }
+.property-success-icon { display: grid; place-items: center; width: 72px; height: 72px; margin: 0 auto 18px; border-radius: 50%; background: #dff3e8; color: #087443; font-size: 2.5rem; font-weight: 800; }
+.payment-instructions { display: grid; gap: 8px; margin: 22px auto; padding: 20px; max-width: 420px; border: 1px solid #b9dfc8; border-radius: 16px; background: #effaf3; color: var(--forest); }
+.payment-instructions a { color: #087443; font-size: 1.45rem; font-weight: 800; letter-spacing: .08em; text-decoration: none; }
+.payment-instructions .payment-transfer-link { display: block; }
+.payment-instructions a .payment-phone { display: block; margin-top: 6px; font-size: 1rem; letter-spacing: .05em; }
+.payment-instructions small { color: var(--muted); font-size: .8rem; }
+.payment-instructions .payment-receipt-link { display: inline-block; font-size: 1rem; letter-spacing: 0; }
+@media (max-width: 640px) {
+  .property-stepper { gap: 4px; }
+  .property-step { display: block; text-align: center; font-size: .68rem; }
+  .property-step span { margin: 0 auto 5px; }
+}
 .form-hint { display: block; margin-top: 6px; color: var(--muted); font-size: .78rem; font-weight: 400; }
 .checkbox-row { display: flex !important; flex-direction: row !important; align-items: center; gap: 10px; }
 .checkbox-row input { width: 18px; height: 18px; }
