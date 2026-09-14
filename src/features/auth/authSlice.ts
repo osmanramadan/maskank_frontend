@@ -15,6 +15,22 @@ export const register = createAsyncThunk('auth/register', async (details, { reje
   try { return (await api.post('/auth/register', details)).data.data; } catch (error) { return rejectWithValue(error.response?.data?.message || 'Unable to create account'); }
 });
 
+export const updateAccountRole = createAsyncThunk('auth/updateAccountRole', async (role, { rejectWithValue }) => {
+  try { return (await api.patch('/auth/me/role', { role })).data.data; } catch (error) { return rejectWithValue(error.response?.data?.message || 'Unable to update account type'); }
+});
+
+export const updateAccountPhone = createAsyncThunk('auth/updateAccountPhone', async (phone: string, { rejectWithValue }) => {
+  try { return (await api.patch('/auth/me/phone', { phone })).data.data; } catch (error) { return rejectWithValue(error.response?.data?.message || 'Unable to update phone number'); }
+});
+
+export const uploadAccountAvatar = createAsyncThunk('auth/uploadAccountAvatar', async (file: File, { rejectWithValue }) => {
+  try {
+    const formData = new FormData();
+    formData.append('avatar', file);
+    return (await api.post('/auth/me/avatar', formData, { headers: { 'Content-Type': 'multipart/form-data' } })).data.data;
+  } catch (error) { return rejectWithValue(error.response?.data?.message || 'Unable to upload profile image'); }
+});
+
 const authSlice = createSlice({
   name: 'auth',
   initialState,
@@ -37,7 +53,16 @@ const authSlice = createSlice({
       .addCase(login.rejected, (state, action) => { state.status = 'failed'; state.error = action.payload; })
       .addCase(register.pending, (state) => { state.status = 'loading'; })
       .addCase(register.fulfilled, (state, action) => { state.status = 'succeeded'; state.token = action.payload.token; state.user = action.payload.user; localStorage.setItem('maskank_token', action.payload.token); })
-      .addCase(register.rejected, (state, action) => { state.status = 'failed'; state.error = action.payload; });
+      .addCase(register.rejected, (state, action) => { state.status = 'failed'; state.error = action.payload; })
+      .addCase(updateAccountRole.pending, (state) => { state.status = 'loading'; })
+      .addCase(updateAccountRole.fulfilled, (state, action) => { state.status = 'succeeded'; state.token = action.payload.token; state.user = action.payload.user; localStorage.setItem('maskank_token', action.payload.token); })
+      .addCase(updateAccountRole.rejected, (state, action) => { state.status = 'failed'; state.error = action.payload; })
+      .addCase(updateAccountPhone.pending, (state) => { state.status = 'loading'; })
+      .addCase(updateAccountPhone.fulfilled, (state, action) => { state.status = 'succeeded'; state.user = action.payload.user; })
+      .addCase(updateAccountPhone.rejected, (state, action) => { state.status = 'failed'; state.error = action.payload; })
+      .addCase(uploadAccountAvatar.pending, (state) => { state.status = 'loading'; })
+      .addCase(uploadAccountAvatar.fulfilled, (state, action) => { state.status = 'succeeded'; state.user = action.payload.user; })
+      .addCase(uploadAccountAvatar.rejected, (state, action) => { state.status = 'failed'; state.error = action.payload; });
   }
 });
 

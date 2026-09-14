@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useDispatch, useSelector } from '../store/hooks';
 import { fetchAdminProperties, fetchAdminReports } from '../features/admin/adminSlice.js';
 import api from '../services/api.js';
@@ -31,6 +32,26 @@ export default function ReviewPage() {
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [actionError, setActionError] = useState('');
   const [reportTab, setReportTab] = useState<'open' | 'closed'>('open');
+  const formatReportDate = (value: string) => {
+    if (!value) return '—';
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return value;
+    return new Intl.DateTimeFormat(language === 'ar' ? 'ar-EG' : 'en-EG', {
+      dateStyle: 'medium',
+      timeStyle: 'short'
+    }).format(date);
+  };
+  const reportReasonLabel = (reason: string) => {
+    const labels = {
+      fake_property: language === 'ar' ? 'عقار وهمي' : 'Fake property',
+      incorrect_information: language === 'ar' ? 'معلومات غير صحيحة' : 'Incorrect information',
+      wrong_price: language === 'ar' ? 'سعر غير صحيح' : 'Wrong price',
+      duplicate_listing: language === 'ar' ? 'إعلان مكرر' : 'Duplicate listing',
+      inappropriate_content: language === 'ar' ? 'محتوى غير مناسب' : 'Inappropriate content',
+      other: language === 'ar' ? 'سبب آخر' : 'Other'
+    };
+    return labels[reason] || reason || t('reportedListing');
+  };
 
   useEffect(() => {
     if (adminRole === 'ADMIN') {
@@ -263,12 +284,30 @@ export default function ReviewPage() {
         <div className="review-stack">
           {reports.length ? reports.map((report) => (
             <div key={report.id} className="review-item">
-              <div>
-                <strong>{report.property_title || t('reportedListing')}</strong>
-                <small>{report.reason || t('reportedListing')} · {report.reporter_name || t('user')} · {report.created_at}</small>
-                {report.details ? <p className="mb-0 mt-2">{report.details}</p> : null}
+              <div className="report-content">
+                {report.property_id ? (
+                  <Link className="report-property-link" to={`/properties/${report.property_id}`}>
+                    {report.property_title || t('reportedListing')}
+                  </Link>
+                ) : (
+                  <strong>{report.property_title || t('reportedListing')}</strong>
+                )}
+                <div className="report-meta">
+                  <span className="report-reason">{reportReasonLabel(report.reason)}</span>
+                  {report.reporter_id ? (
+                    <Link className="report-reporter-link" to={`/users/${report.reporter_id}`}>
+                      {report.reporter_name || t('user')}
+                    </Link>
+                  ) : (
+                    <span>{report.reporter_name || t('user')}</span>
+                  )}
+                  <time dateTime={report.created_at}>{formatReportDate(report.created_at)}</time>
+                </div>
+                {report.details ? <p className="report-details">{report.details}</p> : null}
               </div>
-              {reportTab === 'open' ? <button type="button" className="btn btn-outline-primary rounded-pill" onClick={() => resolveReport(report.id)}>{t('resolve')}</button> : <span className="report-status">{t('resolved')}</span>}
+              <div className="report-action">
+                {reportTab === 'open' ? <button type="button" className="btn btn-outline-primary rounded-pill" onClick={() => resolveReport(report.id)}>{t('resolve')}</button> : <span className="report-status">{t('resolved')}</span>}
+              </div>
             </div>
           )) : <div className="empty-state">{reportTab === 'open' ? t('noOpenReports') : t('noClosedReports')}</div>}
         </div>

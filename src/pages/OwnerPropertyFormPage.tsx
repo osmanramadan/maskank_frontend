@@ -4,7 +4,7 @@ import { MapContainer, Marker, TileLayer, useMapEvents } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { useDispatch, useSelector } from '../store/hooks';
-import { useNavigate, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { fetchProperties } from '../features/properties/propertySlice.js';
 import api from '../services/api.js';
 import { useLanguage } from '../i18n/LanguageContext';
@@ -25,7 +25,11 @@ const emptyForm = {
   governorate_id: '',
   city_id: '',
   latitude: '',
-  longitude: ''
+  longitude: '',
+  contact_mode: 'account',
+  contact_phone: '',
+  whatsapp_mode: 'account',
+  whatsapp_phone: ''
 };
 
 const maxImageSizeBytes = 5 * 1024 * 1024;
@@ -124,6 +128,8 @@ export default function OwnerPropertyFormPage() {
   const { language, t } = useLanguage();
   const navigate = useNavigate();
   const token = useSelector((state) => state.auth.token);
+  const role = useSelector((state) => state.auth.user?.role || state.user.profile?.role);
+  const accountPhone = useSelector((state) => state.auth.user?.phone || state.user.profile?.phone || '');
   const [form, setForm] = useState(emptyForm);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -132,10 +138,7 @@ export default function OwnerPropertyFormPage() {
   const [cities, setCities] = useState<City[]>([]);
 
   useEffect(() => {
-    if (!token) {
-      navigate('/auth', { replace: true });
-      return;
-    }
+    if (!token || !['USER', 'OWNER', 'BROKER', 'COMPANY'].includes(role || '')) return;
 
     api.get('/locations').then((response) => {
       setGovernorates(response.data.data.governorates);
@@ -167,6 +170,10 @@ export default function OwnerPropertyFormPage() {
           city_id: property.city_id,
           latitude: property.latitude ?? '',
           longitude: property.longitude ?? ''
+          , contact_mode: property.contact_phone && property.contact_phone !== accountPhone ? 'custom' : 'account'
+          , contact_phone: property.contact_phone || accountPhone
+          , whatsapp_mode: property.whatsapp_phone && property.whatsapp_phone !== accountPhone ? 'custom' : 'account'
+          , whatsapp_phone: property.whatsapp_phone || accountPhone
         });
       } catch (loadError) {
         setError(localizedError(loadError, language, t('loadPropertyFailed')));
@@ -174,13 +181,42 @@ export default function OwnerPropertyFormPage() {
     };
 
     loadExisting();
-  }, [id, navigate, token]);
+  }, [id, navigate, token, role]);
+
+  if (!token) {
+    return (
+      <section className="page-shell">
+        <div className="container">
+          <div className="auth-card mx-auto text-center">
+            <h2>{language === 'ar' ? 'يجب تسجيل الدخول لإضافة عقار' : 'Sign in to add your property'}</h2>
+            <p className="page-copy">{language === 'ar' ? 'سجّل الدخول للمتابعة وإدارة عقاراتك.' : 'Sign in to continue and manage your properties.'}</p>
+            <button type="button" className="btn btn-primary rounded-pill" onClick={() => navigate('/auth')}>{language === 'ar' ? 'تسجيل الدخول' : 'Sign in'}</button>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  if (!['USER', 'OWNER', 'BROKER', 'COMPANY'].includes(role || '')) {
+    return (
+      <section className="page-shell">
+        <div className="container">
+          <div className="auth-card mx-auto text-center">
+            <h2>{language === 'ar' ? 'نوع الحساب غير مسموح' : 'Account type not allowed'}</h2>
+            <p className="page-copy">{language === 'ar' ? 'يمكنك تغيير نوع الحساب من إعدادات الحساب للمتابعة.' : 'You can change your account type from account settings to continue.'}</p>
+            <Link className="btn btn-primary rounded-pill" to="/account">{language === 'ar' ? 'الذهاب إلى إعدادات الحساب' : 'Go to account settings'}</Link>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   const handleChange = (event) => {
     const { name, value, type, checked } = event.target;
     setForm((current) => ({
       ...current,
-      [name]: type === 'checkbox' ? checked : value
+      [name]: type === 'checkbox' ? checked : value,
+      ...(name === 'property_type' && value === 'land' ? { furnished: false } : {})
     }));
   };
 
@@ -201,12 +237,14 @@ export default function OwnerPropertyFormPage() {
         bedrooms: form.bedrooms === '' ? null : Number(form.bedrooms),
         bathrooms: form.bathrooms === '' ? null : Number(form.bathrooms),
         floor: form.floor === '' ? null : Number(form.floor),
-        furnished: form.furnished === true,
+        furnished: form.property_type === 'land' ? false : form.furnished === true,
         construction_year: form.construction_year === '' ? null : Number(form.construction_year),
         governorate_id: Number(form.governorate_id),
         city_id: Number(form.city_id),
         latitude: form.latitude === '' ? null : Number(form.latitude),
         longitude: form.longitude === '' ? null : Number(form.longitude)
+        , contact_phone: form.contact_mode === 'account' ? accountPhone : form.contact_phone
+        , whatsapp_phone: form.whatsapp_mode === 'account' ? accountPhone : form.whatsapp_phone
       };
 
       let propertyId = id;
@@ -328,24 +366,47 @@ export default function OwnerPropertyFormPage() {
               </label>
             </div>
 
-            <div className="col-md-4">
-              <label>
-                <span>{t('furnished')}</span>
-                <select
-                  name="furnished"
-                  value={form.furnished ? 'true' : 'false'}
-                  onChange={(e) => setForm((current) => ({ ...current, furnished: e.target.value === 'true' }))}
-                >
-                  <option value="false">{language === 'ar' ? 'غير مفروش' : 'Unfurnished'}</option>
-                  <option value="true">{language === 'ar' ? 'مفروش' : 'Furnished'}</option>
-                </select>
-              </label>
-            </div>
+            {form.property_type !== 'land' ? (
+              <div className="col-md-4">
+                <label>
+                  <span>{t('furnished')}</span>
+                  <select
+                    name="furnished"
+                    value={form.furnished ? 'true' : 'false'}
+                    onChange={(e) => setForm((current) => ({ ...current, furnished: e.target.value === 'true' }))}
+                  >
+                    <option value="false">{language === 'ar' ? 'غير مفروش' : 'Unfurnished'}</option>
+                    <option value="true">{language === 'ar' ? 'مفروش' : 'Furnished'}</option>
+                  </select>
+                </label>
+              </div>
+            ) : null}
 
             <div className="col-12">
               <label>
                 <span>{t('description')}</span>
                 <textarea name="description" rows="5" value={form.description} onChange={handleChange} required />
+              </label>
+            </div>
+
+            <div className="col-md-6">
+              <label>
+                <span>{language === 'ar' ? 'رقم الاتصال بالإعلان' : 'Listing call number'}</span>
+                <select name="contact_mode" value={form.contact_mode} onChange={handleChange}>
+                  <option value="account">{language === 'ar' ? `رقم الحساب (${accountPhone})` : `Account number (${accountPhone})`}</option>
+                  <option value="custom">{language === 'ar' ? 'إضافة رقم جديد لهذا الإعلان' : 'Use a different number'}</option>
+                </select>
+                {form.contact_mode === 'custom' ? <input name="contact_phone" type="tel" inputMode="numeric" value={form.contact_phone} onChange={handleChange} placeholder="01012345678" pattern="01[0125][0-9]{8}" maxLength={11} required /> : null}
+              </label>
+            </div>
+            <div className="col-md-6">
+              <label>
+                <span>{language === 'ar' ? 'رقم واتساب الإعلان' : 'Listing WhatsApp number'}</span>
+                <select name="whatsapp_mode" value={form.whatsapp_mode} onChange={handleChange}>
+                  <option value="account">{language === 'ar' ? `رقم الحساب (${accountPhone})` : `Account number (${accountPhone})`}</option>
+                  <option value="custom">{language === 'ar' ? 'إضافة رقم جديد لهذا الإعلان' : 'Use a different number'}</option>
+                </select>
+                {form.whatsapp_mode === 'custom' ? <input name="whatsapp_phone" type="tel" inputMode="numeric" value={form.whatsapp_phone} onChange={handleChange} placeholder="01012345678" pattern="01[0125][0-9]{8}" maxLength={11} required /> : null}
               </label>
             </div>
 

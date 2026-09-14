@@ -14,6 +14,7 @@ import OwnerPropertyFormPage from './pages/OwnerPropertyFormPage.jsx';
 import ReviewPage from './pages/ReviewPage.jsx';
 import ContactPage from './pages/ContactPage.jsx';
 import NotFoundPage from './pages/NotFoundPage.jsx';
+import UserProfilePage from './pages/UserProfilePage.jsx';
 import AdminRoute from './components/AdminRoute.jsx';
 import { fetchCurrentUser } from './features/users/userSlice.js';
 import { fetchFavorites } from './features/favorites/favoriteSlice.js';
@@ -35,13 +36,14 @@ export default function App() {
         <Route path="/" element={<HomePage />} />
         <Route path="/properties" element={<PropertiesPage />} />
         <Route path="/properties/:id" element={<PropertyDetailPage />} />
+        <Route path="/users/:id" element={<UserProfilePage />} />
         <Route path="/favorites" element={<FavoritesPage />} />
         <Route path="/auth" element={<AuthPage />} />
         <Route path="/contact" element={<ContactPage />} />
+        <Route path="/add-property" element={<OwnerPropertyFormPage />} />
         <Route element={<ProtectedRoute />}>
           <Route path="/account" element={<AccountPage />} />
-          <Route element={<ProtectedRoute roles={['OWNER', 'BROKER']} />}>
-            <Route path="/add-property" element={<OwnerPropertyFormPage />} />
+          <Route element={<ProtectedRoute roles={['USER', 'OWNER', 'BROKER', 'COMPANY']} />}>
             <Route path="/properties/:id/edit" element={<OwnerPropertyFormPage />} />
           </Route>
         </Route>

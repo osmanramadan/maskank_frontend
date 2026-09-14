@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from '../store/hooks';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { MapContainer, Marker, TileLayer } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -59,9 +59,11 @@ const markerIcon = L.icon({
 
 export default function PropertyDetailPage() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const dispatch = useDispatch();
   const property = useSelector((state) => state.properties.selected);
   const detailStatus = useSelector((state) => state.properties.detailStatus);
+  const detailError = useSelector((state) => state.properties.error);
   const token = useSelector((state) => state.auth.token);
   const favorites = useSelector((state) => state.favorites.items);
   const { language, t } = useLanguage();
@@ -81,10 +83,16 @@ export default function PropertyDetailPage() {
     return () => { dispatch(clearSelectedProperty()); };
   }, [dispatch, id]);
 
+  useEffect(() => {
+    if (detailStatus === 'failed' && detailError === 'Property not found') {
+      navigate('/properties', { replace: true });
+    }
+  }, [detailError, detailStatus, navigate]);
+
   if (detailStatus === 'loading' || !property) {
     return (
       <section className="page-shell">
-        <div className="container"><div className="loading-card">Loading property details...</div></div>
+        <div className="container"><div className="loading-card">{t('loading')}</div></div>
       </section>
     );
   }
@@ -119,6 +127,11 @@ export default function PropertyDetailPage() {
 
   const submitReport = async (event) => {
     event.preventDefault();
+    if (!token) {
+      setReportOpen(false);
+      setReportError(language === 'ar' ? 'يجب تسجيل الدخول أولًا لإرسال بلاغ عن العقار.' : 'You must sign in first to report this property.');
+      return;
+    }
     setReporting(true);
     setReportError('');
     setReportStatus('');
@@ -236,12 +249,41 @@ export default function PropertyDetailPage() {
                 <div><span>{language === 'ar' ? 'تاريخ الإضافة' : 'Added date'}</span><strong>{new Date(property.created_at).toLocaleDateString(language === 'ar' ? 'ar-EG' : 'en-EG')}</strong></div>
               ) : null}
             </div>
+            {property.contact_phone || property.whatsapp_phone ? (
+              <div className="property-contact-card">
+                <h3>{language === 'ar' ? 'بيانات التواصل' : 'Contact details'}</h3>
+                <div className="property-contact-actions">
+                  {property.whatsapp_phone ? <a className="property-contact-button whatsapp" href={`https://wa.me/2${String(property.whatsapp_phone).slice(1)}`} target="_blank" rel="noreferrer">{language === 'ar' ? 'واتساب' : 'WhatsApp'}</a> : null}
+                  {property.contact_phone ? <a className="property-contact-button phone" href={`tel:${property.contact_phone}`}>{language === 'ar' ? 'اتصال' : 'Call'} <span dir="ltr">{property.contact_phone}</span></a> : null}
+                </div>
+              </div>
+            ) : null}
+            {property.owner_id ? (
+              <div className="property-owner-card">
+                <span className="property-owner-label">{language === 'ar' ? 'صاحب الإعلان' : 'Listed by'}</span>
+                <Link className="property-owner-link" to={`/users/${property.owner_id}`}>
+                  {property.owner_avatar_url ? <img src={property.owner_avatar_url} alt="" /> : null}
+                  <strong>{property.owner_name || (language === 'ar' ? 'عرض الملف الشخصي' : 'View profile')}</strong>
+                  <span>{language === 'ar' ? 'عرض الملف الشخصي' : 'View profile'}</span>
+                </Link>
+              </div>
+            ) : null}
 
             <div className="detail-actions">
               <Link to="/properties" className="btn btn-quiet dark-btn">{language === 'ar' ? 'العودة إلى العقارات' : 'Back to listings'}</Link>
-              {token ? <button type="button" className="btn btn-outline-danger rounded-pill" onClick={() => { setReportOpen((current) => !current); setReportError(''); setReportStatus(''); }}>{t('reportProperty')}</button> : null}
+              <button type="button" className="btn btn-outline-danger rounded-pill" onClick={() => {
+                setReportError('');
+                setReportStatus('');
+                if (!token) {
+                  setReportOpen(false);
+                  setReportError(language === 'ar' ? 'يجب تسجيل الدخول أولًا لإرسال بلاغ عن العقار.' : 'You must sign in first to report this property.');
+                  return;
+                }
+                setReportOpen((current) => !current);
+              }}>{t('reportProperty')}</button>
             </div>
             {reportStatus ? <div className="alert alert-success mt-3">{reportStatus}</div> : null}
+            {reportError && !reportOpen ? <div className="alert alert-warning mt-3">{reportError}</div> : null}
             {reportOpen ? (
               <form className="report-form mt-3" onSubmit={submitReport}>
                 <label>

@@ -17,6 +17,24 @@ const emptyLoginForm = {
   password: ''
 };
 
+function getLocalizedAuthError(error, language) {
+  if (language !== 'ar') return error;
+
+  const translations = {
+    'Phone number is already registered': 'رقم الهاتف مسجل بالفعل.',
+    'Email is already registered': 'البريد الإلكتروني مسجل بالفعل.',
+    'Email or phone is already registered': 'البريد الإلكتروني أو رقم الهاتف مسجل بالفعل.',
+    'A valid Egyptian mobile number is required': 'يرجى إدخال رقم هاتف مصري صحيح.',
+    'Full name, email, phone, and password are required': 'الاسم والبريد الإلكتروني ورقم الهاتف وكلمة المرور حقول مطلوبة.',
+    'Password must contain at least 8 characters': 'يجب أن تتكون كلمة المرور من 8 أحرف على الأقل.',
+    'Invalid email or password': 'البريد الإلكتروني أو كلمة المرور غير صحيحة.',
+    'Unable to sign in': 'تعذر تسجيل الدخول.',
+    'Unable to create account': 'تعذر إنشاء الحساب.'
+  };
+
+  return translations[error] || 'حدث خطأ أثناء تنفيذ الطلب. يرجى المحاولة مرة أخرى.';
+}
+
 export default function AuthPage() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -34,9 +52,9 @@ export default function AuthPage() {
 
   useEffect(() => {
     if (status === 'failed' && error) {
-      window.alert(error);
+      window.alert(getLocalizedAuthError(error, language));
     }
-  }, [error, status]);
+  }, [error, language, status]);
 
   const handleLoginChange = (event) => {
     const { name, value } = event.target;
@@ -58,6 +76,12 @@ export default function AuthPage() {
 
   const handleRegisterSubmit = async (event) => {
     event.preventDefault();
+    if (!/^01[0125]\d{8}$/.test(registerForm.phone.trim())) {
+      window.alert(language === 'ar'
+        ? 'يرجى إدخال رقم هاتف مصري صحيح يبدأ بـ 010 أو 011 أو 012 أو 015 ويتكون من 11 رقمًا.'
+        : 'Enter a valid Egyptian mobile number starting with 010, 011, 012, or 015 (11 digits).');
+      return;
+    }
     const result = await dispatch(register(registerForm));
     if (register.fulfilled.match(result)) {
       navigate('/account', { replace: true });
@@ -124,7 +148,18 @@ export default function AuthPage() {
                 <div className="col-md-6">
                   <label>
                     <span>{language === 'ar' ? 'رقم الهاتف' : 'Phone'}</span>
-                    <input name="phone" value={registerForm.phone} onChange={handleRegisterChange} placeholder="01012345678" required />
+                    <input
+                      name="phone"
+                      type="tel"
+                      inputMode="numeric"
+                      value={registerForm.phone}
+                      onChange={handleRegisterChange}
+                      placeholder="01012345678"
+                      pattern="01[0125][0-9]{8}"
+                      maxLength={11}
+                      title={language === 'ar' ? 'أدخل رقم هاتف مصري من 11 رقمًا' : 'Enter an 11-digit Egyptian mobile number'}
+                      required
+                    />
                   </label>
                 </div>
               </div>
@@ -134,10 +169,11 @@ export default function AuthPage() {
               </label>
               <label>
                 <span>{language === 'ar' ? 'نوع الحساب' : 'Account type'}</span>
-                <select name="role" value={registerForm.role} onChange={handleRegisterChange}>
+                <select name="role" value={registerForm.role} onChange={handleRegisterChange} required>
                   <option value="USER">{language === 'ar' ? 'مشتري / مستأجر' : 'Buyer / renter'}</option>
                   <option value="OWNER">{language === 'ar' ? 'مالك عقار' : 'Property owner'}</option>
                   <option value="BROKER">{language === 'ar' ? 'وسيط عقاري' : 'Broker'}</option>
+                  <option value="COMPANY">{language === 'ar' ? 'صاحب شركة' : 'Company owner'}</option>
                 </select>
               </label>
               <button className="btn btn-primary w-100 rounded-pill" type="submit" disabled={status === 'loading'}>
