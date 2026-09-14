@@ -43,7 +43,7 @@ export default function App() {
         <Route path="/add-property" element={<OwnerPropertyFormPage />} />
         <Route element={<ProtectedRoute />}>
           <Route path="/account" element={<AccountPage />} />
-          <Route element={<ProtectedRoute roles={['USER', 'OWNER', 'BROKER', 'COMPANY']} />}>
+          <Route element={<ProtectedRoute roles={['USER', 'OWNER', 'BROKER', 'COMPANY', 'ADMIN']} />}>
             <Route path="/properties/:id/edit" element={<OwnerPropertyFormPage />} />
           </Route>
         </Route>

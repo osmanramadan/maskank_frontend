@@ -12,7 +12,7 @@ export default function AppLayout() {
   const user = useSelector((state) => state.auth.user ?? state.user.profile);
   const role = useSelector((state) => state.auth.user?.role || state.user.profile?.role);
   const isAdmin = role === 'ADMIN';
-  const canAddProperty = role === 'USER' || role === 'OWNER' || role === 'BROKER' || role === 'COMPANY';
+  const canAddProperty = role === 'USER' || role === 'OWNER' || role === 'BROKER' || role === 'COMPANY' || role === 'ADMIN';
   const { language, toggleLanguage, t } = useLanguage();
 
   const handleLogout = () => {

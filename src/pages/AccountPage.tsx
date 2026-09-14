@@ -163,13 +163,13 @@ export default function AccountPage() {
           </div>
         </div>
 
-        {((role === 'USER' || role === 'OWNER' || role === 'BROKER' || role === 'COMPANY') || ownerProperties.length > 0) && (
+        {((role === 'USER' || role === 'OWNER' || role === 'BROKER' || role === 'COMPANY' || role === 'ADMIN') || ownerProperties.length > 0) && (
           <div className="auth-card account-listings-card">
             <div className="d-flex justify-content-between align-items-center gap-3 mb-3 flex-wrap">
               <div>
                 <h2>{t('yourListings')}</h2>
               </div>
-              {role === 'USER' || role === 'OWNER' || role === 'BROKER' || role === 'COMPANY' ? (
+              {role === 'USER' || role === 'OWNER' || role === 'BROKER' || role === 'COMPANY' || role === 'ADMIN' ? (
                 <Link to="/add-property" className="btn account-add-property">
                   <FontAwesomeIcon icon={faPlus} aria-hidden="true" />
                   <span>{t('addProperty')}</span>
@@ -192,7 +192,7 @@ export default function AccountPage() {
                     </div>
                     <div className="owner-listing-actions">
                       {property.status === 'approved' ? <Link to={`/properties/${property.id}`} className="btn btn-outline-primary rounded-pill">{t('view')}</Link> : null}
-                      {role === 'USER' || role === 'OWNER' || role === 'BROKER' || role === 'COMPANY' ? (
+                      {role === 'USER' || role === 'OWNER' || role === 'BROKER' || role === 'COMPANY' || role === 'ADMIN' ? (
                         <>
                           <Link to={`/properties/${property.id}/edit`} className="btn btn-outline-secondary rounded-pill">{t('edit')}</Link>
                           <button type="button" className="btn btn-outline-danger rounded-pill" onClick={() => handleDelete(property.id)}>{t('delete')}</button>

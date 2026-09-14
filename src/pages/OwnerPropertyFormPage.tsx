@@ -138,7 +138,7 @@ export default function OwnerPropertyFormPage() {
   const [cities, setCities] = useState<City[]>([]);
 
   useEffect(() => {
-    if (!token || !['USER', 'OWNER', 'BROKER', 'COMPANY'].includes(role || '')) return;
+    if (!token || !['USER', 'OWNER', 'BROKER', 'COMPANY', 'ADMIN'].includes(role || '')) return;
 
     api.get('/locations').then((response) => {
       setGovernorates(response.data.data.governorates);
@@ -197,7 +197,7 @@ export default function OwnerPropertyFormPage() {
     );
   }
 
-  if (!['USER', 'OWNER', 'BROKER', 'COMPANY'].includes(role || '')) {
+  if (!['USER', 'OWNER', 'BROKER', 'COMPANY', 'ADMIN'].includes(role || '')) {
     return (
       <section className="page-shell">
         <div className="container">
