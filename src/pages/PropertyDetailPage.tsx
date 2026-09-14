@@ -15,7 +15,8 @@ import {
   faRulerCombined,
   faChevronLeft,
   faChevronRight,
-  faXmark
+  faXmark,
+  faSpinner
 } from '@fortawesome/free-solid-svg-icons';
 import { clearSelectedProperty, fetchProperty } from '../features/properties/propertySlice.js';
 import { addFavorite, removeFavorite } from '../features/favorites/favoriteSlice.js';
@@ -75,6 +76,7 @@ export default function PropertyDetailPage() {
   const [reporting, setReporting] = useState(false);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [favoriteLoading, setFavoriteLoading] = useState(false);
 
   useEffect(() => {
     dispatch(fetchProperty(id));
@@ -147,6 +149,16 @@ export default function PropertyDetailPage() {
     }
   };
 
+  const handleFavoriteClick = async () => {
+    if (favoriteLoading) return;
+    setFavoriteLoading(true);
+    try {
+      await dispatch(isFavorite ? removeFavorite(property.id) : addFavorite(property.id));
+    } finally {
+      setFavoriteLoading(false);
+    }
+  };
+
 
   return (
     <section className="page-shell property-detail-shell">
@@ -206,7 +218,7 @@ export default function PropertyDetailPage() {
               </Link>
             </div>
             <h1>{property.title}</h1>
-            {token ? <button type="button" className={`favorite-button detail-favorite-button ${isFavorite ? 'is-favorite' : ''}`} aria-label={isFavorite ? (language === 'ar' ? 'إزالة من المفضلة' : 'Remove from favorites') : (language === 'ar' ? 'إضافة إلى المفضلة' : 'Add to favorites')} onClick={() => dispatch(isFavorite ? removeFavorite(property.id) : addFavorite(property.id))}><FontAwesomeIcon icon={faHeart} /> <span>{isFavorite ? (language === 'ar' ? 'تم الحفظ' : 'Saved') : (language === 'ar' ? 'حفظ' : 'Save')}</span></button> : null}
+            {token ? <button type="button" disabled={favoriteLoading} className={`favorite-button detail-favorite-button ${isFavorite ? 'is-favorite' : ''}`} aria-label={isFavorite ? (language === 'ar' ? 'إزالة من المفضلة' : 'Remove from favorites') : (language === 'ar' ? 'إضافة إلى المفضلة' : 'Add to favorites')} onClick={() => void handleFavoriteClick()}><FontAwesomeIcon icon={favoriteLoading ? faSpinner : faHeart} spin={favoriteLoading} /> <span>{favoriteLoading ? (language === 'ar' ? 'جارٍ الحفظ...' : 'Saving...') : (isFavorite ? (language === 'ar' ? 'تم الحفظ' : 'Saved') : (language === 'ar' ? 'حفظ' : 'Save'))}</span></button> : null}
             <div className="property-price-row">
               <strong>{Number(property.price).toLocaleString('en-EG')} {property.currency}</strong>
               <span className="property-view-count">

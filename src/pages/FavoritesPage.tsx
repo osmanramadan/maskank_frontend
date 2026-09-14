@@ -1,8 +1,8 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from '../store/hooks';
 import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faHeart, faMapMarkerAlt } from '@fortawesome/free-solid-svg-icons';
+import { faHeart, faMapMarkerAlt, faSpinner } from '@fortawesome/free-solid-svg-icons';
 import { fetchFavorites, removeFavorite } from '../features/favorites/favoriteSlice.js';
 import { useLanguage } from '../i18n/LanguageContext';
 
@@ -37,10 +37,21 @@ export default function FavoritesPage() {
   const { language } = useLanguage();
   const token = useSelector((state) => state.auth.token);
   const favorites = useSelector((state) => state.favorites.items);
+  const [removingFavorite, setRemovingFavorite] = useState<number | null>(null);
 
   useEffect(() => {
     if (token) dispatch(fetchFavorites());
   }, [dispatch, token]);
+
+  const handleRemoveFavorite = async (propertyId: number) => {
+    if (removingFavorite !== null) return;
+    setRemovingFavorite(propertyId);
+    try {
+      await dispatch(removeFavorite(propertyId));
+    } finally {
+      setRemovingFavorite(null);
+    }
+  };
 
   if (!token) {
     return (
@@ -84,8 +95,8 @@ export default function FavoritesPage() {
                   </div>
                   <div className="detail-actions mt-3">
                     <Link to={`/properties/${property.id}`} className="btn btn-primary rounded-pill">{language === 'ar' ? 'عرض' : 'View'}</Link>
-                    <button type="button" className="btn btn-outline-danger rounded-pill" onClick={() => dispatch(removeFavorite(property.id))}>
-                      <FontAwesomeIcon icon={faHeart} className="me-2" />{language === 'ar' ? 'إزالة' : 'Remove'}
+                    <button type="button" className="btn btn-outline-danger rounded-pill" disabled={removingFavorite === Number(property.id)} onClick={() => void handleRemoveFavorite(Number(property.id))}>
+                      <FontAwesomeIcon icon={removingFavorite === Number(property.id) ? faSpinner : faHeart} spin={removingFavorite === Number(property.id)} className="me-2" />{removingFavorite === Number(property.id) ? (language === 'ar' ? 'جارٍ الإزالة...' : 'Removing...') : (language === 'ar' ? 'إزالة' : 'Remove')}
                     </button>
                   </div>
                 </div>

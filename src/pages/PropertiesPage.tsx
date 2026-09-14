@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from '../store/hooks';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBed, faBath, faRulerCombined, faMapMarkerAlt, faHeart } from '@fortawesome/free-solid-svg-icons';
+import { faBed, faBath, faRulerCombined, faMapMarkerAlt, faHeart, faSpinner } from '@fortawesome/free-solid-svg-icons';
 import { fetchProperties } from '../features/properties/propertySlice.js';
 import { addFavorite, removeFavorite } from '../features/favorites/favoriteSlice.js';
 import { useLanguage } from '../i18n/LanguageContext';
@@ -43,6 +43,7 @@ export default function PropertiesPage() {
   const token = useSelector((state) => state.auth.token);
   const favorites = useSelector((state) => state.favorites.items);
   const [locations, setLocations] = useState({ governorates: [], cities: [] });
+  const [favoriteRequests, setFavoriteRequests] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     api.get('/locations').then((response) => {
@@ -77,6 +78,21 @@ export default function PropertiesPage() {
     });
     params.set('page', '1');
     setSearchParams(params);
+  };
+
+  const handleFavoriteClick = async (propertyId: number, isFavorite: boolean) => {
+    const key = String(propertyId);
+    if (favoriteRequests[key]) return;
+    setFavoriteRequests((current) => ({ ...current, [key]: true }));
+    try {
+      await dispatch(isFavorite ? removeFavorite(propertyId) : addFavorite(propertyId));
+    } finally {
+      setFavoriteRequests((current) => {
+        const next = { ...current };
+        delete next[key];
+        return next;
+      });
+    }
   };
 
   const availableCities = locations.cities.filter(
@@ -151,12 +167,13 @@ export default function PropertiesPage() {
                 <button
                   type="button"
                   className={`favorite-button ${isFavorite ? 'is-favorite' : ''}`}
+                  disabled={Boolean(favoriteRequests[String(property.id)])}
                   aria-label={isFavorite ? 'Unlike' : 'Like'}
                   onClick={() => token
-                    ? dispatch(isFavorite ? removeFavorite(Number(property.id)) : addFavorite(Number(property.id)))
+                    ? void handleFavoriteClick(Number(property.id), isFavorite)
                     : navigate('/auth')}
                 >
-                  <FontAwesomeIcon icon={faHeart} />
+                  <FontAwesomeIcon icon={favoriteRequests[String(property.id)] ? faSpinner : faHeart} spin={Boolean(favoriteRequests[String(property.id)])} />
                 </button>
                 <Link to={`/properties/${property.id}`} className="property-card-link">
                 <div className="property-card-body">
