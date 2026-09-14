@@ -179,8 +179,18 @@ export default function PropertyDetailPage() {
 
           <div className="property-info-panel">
             <div className="property-meta-header">
-              <span className="property-chip">{property.purpose === 'sale' ? (language === 'ar' ? 'للبيع' : 'For sale') : (language === 'ar' ? 'للإيجار' : 'For rent')}</span>
-              <span className="property-chip light">{propertyTypeLabel}</span>
+              <Link
+                className="property-chip property-chip-link"
+                to={`/properties?purpose=${property.purpose === 'sale' ? 'sale' : 'rent'}`}
+              >
+                {property.purpose === 'sale' ? (language === 'ar' ? 'للبيع' : 'For sale') : (language === 'ar' ? 'للإيجار' : 'For rent')}
+              </Link>
+              <Link
+                className="property-chip property-chip-link light"
+                to={`/properties?type=${encodeURIComponent(propertyTypeKey)}`}
+              >
+                {propertyTypeLabel}
+              </Link>
             </div>
             <h1>{property.title}</h1>
             {token ? <button type="button" className={`favorite-button detail-favorite-button ${isFavorite ? 'is-favorite' : ''}`} aria-label={isFavorite ? (language === 'ar' ? 'إزالة من المفضلة' : 'Remove from favorites') : (language === 'ar' ? 'إضافة إلى المفضلة' : 'Add to favorites')} onClick={() => dispatch(isFavorite ? removeFavorite(property.id) : addFavorite(property.id))}><FontAwesomeIcon icon={faHeart} /> <span>{isFavorite ? (language === 'ar' ? 'تم الحفظ' : 'Saved') : (language === 'ar' ? 'حفظ' : 'Save')}</span></button> : null}
@@ -222,8 +232,8 @@ export default function PropertyDetailPage() {
               <div><span>{language === 'ar' ? 'المحافظة' : 'Governorate'}</span><strong>{property.governorate}</strong></div>
               <div><span>{language === 'ar' ? 'المدينة' : 'City'}</span><strong>{property.city}</strong></div>
               <div><span>{language === 'ar' ? 'مفروش' : 'Furnished'}</span><strong>{property.furnished ? (language === 'ar' ? 'نعم' : 'Yes') : (language === 'ar' ? 'لا' : 'No')}</strong></div>
-              {property.approved_at ? (
-                <div><span>{language === 'ar' ? 'تاريخ موافقة الإدارة' : 'Admin approval date'}</span><strong>{new Date(property.approved_at).toLocaleDateString(language === 'ar' ? 'ar-EG' : 'en-EG')}</strong></div>
+              {property.created_at ? (
+                <div><span>{language === 'ar' ? 'تاريخ الإضافة' : 'Added date'}</span><strong>{new Date(property.created_at).toLocaleDateString(language === 'ar' ? 'ar-EG' : 'en-EG')}</strong></div>
               ) : null}
             </div>
 
