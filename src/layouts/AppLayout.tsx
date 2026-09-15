@@ -1,7 +1,7 @@
 import { Link, NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from '../store/hooks';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faChevronDown, faEnvelope, faHeart, faHouse, faLocationDot, faMapLocationDot, faPlus, faSignOutAlt, faUser } from '@fortawesome/free-solid-svg-icons';
+import { faEnvelope, faLocationDot } from '@fortawesome/free-solid-svg-icons';
 import { clearCredentials } from '../features/auth/authSlice.js';
 import { useLanguage } from '../i18n/LanguageContext';
 
@@ -40,19 +40,17 @@ export default function AppLayout() {
                   <NavLink className="nav-link" to="/">{t('home')}</NavLink>
                   <div className="dropdown properties-dropdown">
                     <NavLink className="nav-link properties-link" to="/properties">{t('properties')}</NavLink>
-                    <button className="nav-link dropdown-toggle properties-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label={language === 'ar' ? 'فتح قائمة العقارات' : 'Open properties menu'}>
-                      <FontAwesomeIcon icon={faChevronDown} className="dropdown-chevron" />
-                    </button>
+                    <button className="nav-link dropdown-toggle properties-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label={language === 'ar' ? 'فتح قائمة العقارات' : 'Open properties menu'} />
                     <ul className="dropdown-menu dropdown-menu-end">
                       <li><Link className="dropdown-item" to="/properties?purpose=rent">{t('rent')}</Link></li>
                       <li><Link className="dropdown-item" to="/properties?purpose=sale">{t('buy')}</Link></li>
                     </ul>
                   </div>
                   <NavLink className="nav-link" to="/contact">{t('footerContact')}</NavLink>
-                  <NavLink className="nav-link" to="/map"><FontAwesomeIcon icon={faMapLocationDot} className="me-2" />{t('map')}</NavLink>
+                  <NavLink className="nav-link" to="/map">{t('map')}</NavLink>
                   <>
-                      <NavLink className="nav-link" to="/favorites"><FontAwesomeIcon icon={faHeart} className="me-2" />{t('favorites')}</NavLink>
-                      {canCreateProperty ? <NavLink className="nav-link" to="/add-property"><FontAwesomeIcon icon={faPlus} className="me-2" />{t('addProperty')}</NavLink> : null}
+                    <NavLink className="nav-link" to="/favorites">{t('favorites')}</NavLink>
+                    {canCreateProperty ? <NavLink className="nav-link" to="/add-property">{t('addProperty')}</NavLink> : null}
                       {token && isAdmin ? <><NavLink className="nav-link" to="/admin">{t('admin')}</NavLink><NavLink className="nav-link" to="/admin/review">{t('review')}</NavLink></> : null}
                   </>
                 </div>
@@ -67,12 +65,12 @@ export default function AppLayout() {
                       {user?.full_name || user?.fullName || t('account')}
                     </NavLink>
                     <button className="btn btn-outline-light rounded-pill px-3" type="button" onClick={handleLogout}>
-                      <FontAwesomeIcon icon={faSignOutAlt} className="me-2" />{t('logout')}
+                      {t('logout')}
                     </button>
                   </>
                 ) : (
                   <NavLink className="btn btn-outline-light rounded-pill px-3" to="/auth">
-                    <FontAwesomeIcon icon={faUser} className="me-2" />{t('signIn')}
+                    {t('signIn')}
                   </NavLink>
                 )}
                 </div>
