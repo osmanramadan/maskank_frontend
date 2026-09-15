@@ -54,6 +54,12 @@ main { flex: 1; }
 .primary-nav { position: static; transform: none; margin: 0 auto; }
 .account-nav { margin-left: 0; padding-left: 0; }
 .primary-nav .nav-link, .account-nav .nav-link { white-space: nowrap; }
+html[dir="rtl"] .header-inner,
+html[dir="rtl"] .navbar-collapse,
+html[dir="rtl"] .header-nav,
+html[dir="rtl"] .primary-nav,
+html[dir="rtl"] .account-nav { direction: rtl; }
+html[dir="rtl"] .account-nav { margin-right: 0; margin-left: 0; padding-right: 0; padding-left: 0; }
 .properties-dropdown { display: flex; align-items: center; }
 .properties-toggle { padding-inline: 0 4px; }
 .dropdown-chevron { font-size: .62rem; margin-inline-start: 5px; }
@@ -525,4 +531,9 @@ textarea { width: 100%; border: 1px solid var(--line); border-radius: 10px; padd
   .account-nav { margin-top: 8px; padding-top: 8px; border-top: 1px solid rgba(255,255,255,.14); }
   .account-nav-link { max-width: none; overflow: hidden; text-overflow: ellipsis; }
   .account-nav .btn { align-self: flex-start; margin: 8px 0 4px; }
+  html[dir="rtl"] .primary-nav .nav-link,
+  html[dir="rtl"] .primary-nav .dropdown-toggle,
+  html[dir="rtl"] .account-nav .nav-link { text-align: right; }
+  html[dir="rtl"] .primary-nav .dropdown-toggle { justify-content: flex-end; }
+  html[dir="rtl"] .account-nav .btn { align-self: flex-end; }
 }
