@@ -278,7 +278,7 @@ html[dir="ltr"] .account-email-value { text-align: left; }
 .location-chip { display: flex; align-items: center; gap: 8px; color: var(--fern); font-size: .85rem; }
 .meta-row { display: flex; align-items: center; gap: 8px 14px; margin-top: 14px; color: var(--muted); font-size: .76rem; flex-wrap: nowrap; white-space: nowrap; }
 .meta-row span:last-child { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
-.share-meta-button { flex: 0 0 auto; display: inline-grid; place-items: center; width: 32px; height: 32px; padding: 0; border: 0; color: var(--fern); background: transparent; font-size: 1.1rem; cursor: pointer; }
+.share-meta-button { flex: 0 0 auto; display: inline-grid; place-items: center; width: 32px; height: 32px; margin-inline-start: auto; padding: 0; border: 0; color: var(--fern); background: transparent; font-size: 1.1rem; cursor: pointer; }
 .share-meta-button:hover, .share-meta-button:focus-visible { color: var(--accent); }
 .meta-row svg { margin-right: 6px; }
 @media (max-width: 576px) {
