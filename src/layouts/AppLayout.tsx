@@ -1,7 +1,7 @@
 import { Link, NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from '../store/hooks';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEnvelope, faLocationDot } from '@fortawesome/free-solid-svg-icons';
+import { faComments, faEnvelope, faLocationDot, faPhone } from '@fortawesome/free-solid-svg-icons';
 import { clearCredentials } from '../features/auth/authSlice.js';
 import { useLanguage } from '../i18n/LanguageContext';
 
@@ -109,8 +109,9 @@ export default function AppLayout() {
             <div className="footer-column footer-contact">
               <h3>{t('footerContact')}</h3>
               <span><FontAwesomeIcon icon={faLocationDot} /> {language === 'ar' ? 'دمياط، دمياط الجديدة' : 'Damietta, New Damietta'}</span>
-              <NavLink to="/contact">{t('footerContact')}</NavLink>
-              <a href="mailto:aqaratmesr@gmail.com">aqaratmesr@gmail.com</a>
+              <NavLink to="/contact"><FontAwesomeIcon icon={faComments} /> {t('footerContact')}</NavLink>
+              <a href="mailto:aqaratmesr@gmail.com"><FontAwesomeIcon icon={faEnvelope} /> aqaratmesr@gmail.com</a>
+              <a href="tel:01027528199"><FontAwesomeIcon icon={faPhone} /> 01027528199</a>
             </div>
           </div>
           <div className="footer-bottom">

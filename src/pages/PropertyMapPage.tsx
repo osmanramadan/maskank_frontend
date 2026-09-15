@@ -108,18 +108,7 @@ export default function PropertyMapPage() {
   const [userLocation, setUserLocation] = useState<Coordinates | null>(null);
   const [nearbyOnly, setNearbyOnly] = useState(false);
   const [locationMessage, setLocationMessage] = useState('');
-  const [scrollProgress, setScrollProgress] = useState(0);
   const [status, setStatus] = useState<'loading' | 'succeeded' | 'failed'>('loading');
-
-  useEffect(() => {
-    const handleScroll = () => {
-      const scrollableHeight = document.documentElement.scrollHeight - window.innerHeight;
-      setScrollProgress(scrollableHeight > 0 ? window.scrollY / scrollableHeight : 0);
-    };
-    handleScroll();
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
 
   useEffect(() => {
     let active = true;
@@ -258,19 +247,6 @@ export default function PropertyMapPage() {
           </div>
         ) : null}
       </div>
-      <input
-        className="property-map-scrollbar"
-        type="range"
-        min="0"
-        max="100"
-        step="0.1"
-        value={scrollProgress * 100}
-        onChange={(event) => {
-          const scrollableHeight = document.documentElement.scrollHeight - window.innerHeight;
-          window.scrollTo({ top: (Number(event.target.value) / 100) * scrollableHeight, behavior: 'auto' });
-        }}
-        aria-label={language === 'ar' ? 'التحكم في تمرير الصفحة' : 'Page scroll control'}
-      />
     </section>
   );
 }
