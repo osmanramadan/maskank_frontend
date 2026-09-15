@@ -57,8 +57,8 @@ function LocationPicker({ onSelect }: { onSelect: (position: MapPosition) => voi
 
 function locationLabel(location: Location, language: string) {
   return language === 'ar'
-    ? `${location.name_ar} - ${location.name_en}`
-    : `${location.name_en} - ${location.name_ar}`;
+    ? location.name_ar
+    : location.name_en;
 }
 
 function localizedError(error: unknown, language: string, fallback: string) {
@@ -199,13 +199,13 @@ export default function OwnerPropertyFormPage() {
     );
   }
 
-  if (!['USER', 'OWNER', 'BROKER', 'COMPANY', 'ADMIN'].includes(role || '')) {
+  if ((!id && role === 'USER') || !['USER', 'OWNER', 'BROKER', 'COMPANY', 'ADMIN'].includes(role || '')) {
     return (
       <section className="page-shell">
         <div className="container">
           <div className="auth-card mx-auto text-center">
             <h2>{language === 'ar' ? 'غير مسموح لنوع الحساب هذا بإضافة عقار' : 'This account type cannot add properties'}</h2>
-            <p className="page-copy">{language === 'ar' ? 'حساب المشتري مخصص لتصفح العقارات وحفظها. يمكنك تغيير نوع الحساب من لوحة الحساب ثم العودة لإضافة عقار.' : 'Buyer accounts are for browsing and saving properties. Change your account type from your account page, then return to add a property.'}</p>
+            <p className="page-copy">{language === 'ar' ? (id ? 'يمكنك تعديل إعلاناتك الحالية أو حذفها من حسابك، لكن لا يمكن لحساب المشتري إضافة إعلان جديد.' : 'حساب المشتري لا يمكنه إضافة إعلان جديد. يمكنك إدارة إعلاناتك الحالية من حسابك.') : (id ? 'You can edit or delete your existing listings from your account, but buyer accounts cannot create new listings.' : 'Buyer accounts cannot create new listings. You can manage your existing listings from your account.')}</p>
             <Link className="btn btn-primary rounded-pill" to="/account">{language === 'ar' ? 'الذهاب إلى إعدادات الحساب' : 'Go to account settings'}</Link>
           </div>
         </div>

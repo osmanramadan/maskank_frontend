@@ -13,7 +13,7 @@ const roleLabels = {
 
 export default function UserProfilePage() {
   const { id } = useParams();
-  const { language } = useLanguage();
+  const { language, t } = useLanguage();
   const [profile, setProfile] = useState(null);
   const [status, setStatus] = useState('loading');
 
@@ -54,7 +54,7 @@ export default function UserProfilePage() {
                 <Link className="profile-property-item" to={`/properties/${property.id}`} key={property.id}>
                   <strong>{property.title}</strong>
                   <span>{Number(property.price).toLocaleString(language === 'ar' ? 'ar-EG' : 'en-EG')} {property.currency}{property.purpose === 'rent' ? ` / ${t('perMonth')}` : ''}</span>
-                  <small>{property.city}، {property.governorate}</small>
+                  <small>{language === 'ar' ? (property.city_ar || property.city) : property.city}، {language === 'ar' ? (property.governorate_ar || property.governorate) : property.governorate}</small>
                 </Link>
               ))}
             </div>

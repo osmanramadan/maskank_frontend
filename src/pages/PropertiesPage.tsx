@@ -137,7 +137,7 @@ export default function PropertiesPage() {
               <option value="">{t('governorate')}</option>
               {locations.governorates.map((governorate) => (
                 <option key={governorate.id} value={governorate.name_en}>
-                  {governorate.name_ar} - {governorate.name_en}
+                  {language === 'ar' ? governorate.name_ar : governorate.name_en}
                 </option>
               ))}
             </select>
@@ -145,7 +145,7 @@ export default function PropertiesPage() {
               <option value="">{t('city')}</option>
               {availableCities.map((city) => (
                 <option key={city.id} value={city.name_en}>
-                  {city.name_ar} - {city.name_en}
+                  {language === 'ar' ? city.name_ar : city.name_en}
                 </option>
               ))}
             </select>
@@ -184,7 +184,7 @@ export default function PropertiesPage() {
                   <h3>{property.title}</h3>
                   <div className="location-chip">
                     <FontAwesomeIcon icon={faMapMarkerAlt} />
-                    <span>{property.city}, {property.governorate}</span>
+                    <span>{language === 'ar' ? (property.city_ar || property.city) : property.city}, {language === 'ar' ? (property.governorate_ar || property.governorate) : property.governorate}</span>
                   </div>
                   <div className="meta-row">
                     <span><FontAwesomeIcon icon={faBed} /> {property.bedrooms ?? 0}</span>

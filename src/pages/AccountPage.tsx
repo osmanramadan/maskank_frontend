@@ -251,7 +251,7 @@ export default function AccountPage() {
               <div>
                 <h2>{t('yourListings')}</h2>
               </div>
-              {role === 'USER' || role === 'OWNER' || role === 'BROKER' || role === 'COMPANY' || role === 'ADMIN' ? (
+              {role === 'OWNER' || role === 'BROKER' || role === 'COMPANY' || role === 'ADMIN' ? (
                 <Link to="/add-property" className="btn account-add-property">
                   <FontAwesomeIcon icon={faPlus} aria-hidden="true" />
                   <span>{t('addProperty')}</span>

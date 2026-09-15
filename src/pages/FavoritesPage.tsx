@@ -34,7 +34,7 @@ function getImageUrl(filePath?: string | null) {
 
 export default function FavoritesPage() {
   const dispatch = useDispatch();
-  const { language } = useLanguage();
+  const { language, t } = useLanguage();
   const token = useSelector((state) => state.auth.token);
   const favorites = useSelector((state) => state.favorites.items);
   const [removingFavorite, setRemovingFavorite] = useState<number | null>(null);
@@ -91,7 +91,7 @@ export default function FavoritesPage() {
                   <h3>{property.title}</h3>
                   <div className="location-chip">
                     <FontAwesomeIcon icon={faMapMarkerAlt} />
-                    <span>{property.city}, {property.governorate}</span>
+                    <span>{language === 'ar' ? (property.city_ar || property.city) : property.city}, {language === 'ar' ? (property.governorate_ar || property.governorate) : property.governorate}</span>
                   </div>
                   <div className="detail-actions mt-3">
                     <Link to={`/properties/${property.id}`} className="btn btn-primary rounded-pill">{language === 'ar' ? 'عرض' : 'View'}</Link>

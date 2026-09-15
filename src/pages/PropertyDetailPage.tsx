@@ -195,7 +195,7 @@ export default function PropertyDetailPage() {
               <Link className="property-chip property-chip-link light" to={`/properties?type=${encodeURIComponent(propertyTypeKey)}`}>{propertyTypeLabel}</Link>
             </div>
             <h1>{property.title}</h1>
-            <div className="property-detail-location"><FontAwesomeIcon icon={faMapMarkerAlt} /> {property.address || `${property.city}, ${property.governorate}`}</div>
+            <div className="property-detail-location"><FontAwesomeIcon icon={faMapMarkerAlt} /> {property.address || `${language === 'ar' ? (property.city_ar || property.city) : property.city}, ${language === 'ar' ? (property.governorate_ar || property.governorate) : property.governorate}`}</div>
           </div>
         </header>
 
@@ -249,8 +249,8 @@ export default function PropertyDetailPage() {
                 <div><FontAwesomeIcon icon={faBuilding} /><strong>{property.floor ?? '—'}</strong><span>{language === 'ar' ? 'الطابق' : 'Floor'}</span></div>
               </div>
               <div className="detail-info-panel">
-                <div><span>{language === 'ar' ? 'المحافظة' : 'Governorate'}</span><strong>{property.governorate}</strong></div>
-                <div><span>{language === 'ar' ? 'المدينة' : 'City'}</span><strong>{property.city}</strong></div>
+                <div><span>{language === 'ar' ? 'المحافظة' : 'Governorate'}</span><strong>{language === 'ar' ? (property.governorate_ar || property.governorate) : property.governorate}</strong></div>
+                <div><span>{language === 'ar' ? 'المدينة' : 'City'}</span><strong>{language === 'ar' ? (property.city_ar || property.city) : property.city}</strong></div>
                 <div><span>{language === 'ar' ? 'نوع الإعلان' : 'Listing type'}</span><strong>{propertyTypeLabel}</strong></div>
                 <div><span>{language === 'ar' ? 'مفروش' : 'Furnished'}</span><strong>{property.furnished ? (language === 'ar' ? 'نعم' : 'Yes') : (language === 'ar' ? 'لا' : 'No')}</strong></div>
                 <div><span>{language === 'ar' ? 'سعر المتر' : 'Price per sqm'}</span><strong>{property.area_sqm ? `${(Number(property.price) / Number(property.area_sqm)).toLocaleString('en-EG', { maximumFractionDigits: 0 })} ${property.currency}/${language === 'ar' ? 'م²' : 'sqm'}` : '—'}</strong></div>

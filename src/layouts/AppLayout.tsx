@@ -1,7 +1,7 @@
 import { Link, NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from '../store/hooks';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faChevronDown, faEnvelope, faHeart, faHouse, faLocationDot, faPlus, faSignOutAlt, faUser } from '@fortawesome/free-solid-svg-icons';
+import { faChevronDown, faEnvelope, faHeart, faHouse, faLocationDot, faMapLocationDot, faPlus, faSignOutAlt, faUser } from '@fortawesome/free-solid-svg-icons';
 import { clearCredentials } from '../features/auth/authSlice.js';
 import { useLanguage } from '../i18n/LanguageContext';
 
@@ -12,6 +12,7 @@ export default function AppLayout() {
   const user = useSelector((state) => state.auth.user ?? state.user.profile);
   const role = useSelector((state) => state.auth.user?.role || state.user.profile?.role);
   const isAdmin = role === 'ADMIN';
+  const canCreateProperty = !token || role !== 'USER';
   const { language, toggleLanguage, t } = useLanguage();
 
   const handleLogout = () => {
@@ -48,9 +49,10 @@ export default function AppLayout() {
                     </ul>
                   </div>
                   <NavLink className="nav-link" to="/contact">{t('footerContact')}</NavLink>
+                  <NavLink className="nav-link" to="/map"><FontAwesomeIcon icon={faMapLocationDot} className="me-2" />{t('map')}</NavLink>
                   <>
                       <NavLink className="nav-link" to="/favorites"><FontAwesomeIcon icon={faHeart} className="me-2" />{t('favorites')}</NavLink>
-                      <NavLink className="nav-link" to="/add-property"><FontAwesomeIcon icon={faPlus} className="me-2" />{t('addProperty')}</NavLink>
+                      {canCreateProperty ? <NavLink className="nav-link" to="/add-property"><FontAwesomeIcon icon={faPlus} className="me-2" />{t('addProperty')}</NavLink> : null}
                       {token && isAdmin ? <><NavLink className="nav-link" to="/admin">{t('admin')}</NavLink><NavLink className="nav-link" to="/admin/review">{t('review')}</NavLink></> : null}
                   </>
                 </div>
@@ -108,8 +110,9 @@ export default function AppLayout() {
             </div>
             <div className="footer-column footer-contact">
               <h3>{t('footerContact')}</h3>
-              <span><FontAwesomeIcon icon={faLocationDot} /> {language === 'ar' ? 'القاهرة، مصر' : 'Cairo, Egypt'}</span>
+              <span><FontAwesomeIcon icon={faLocationDot} /> {language === 'ar' ? 'دمياط، دمياط الجديدة' : 'Damietta, New Damietta'}</span>
               <NavLink to="/contact">{t('footerContact')}</NavLink>
+              <a href="mailto:aqaratmesr@gmail.com">aqaratmesr@gmail.com</a>
             </div>
           </div>
           <div className="footer-bottom">

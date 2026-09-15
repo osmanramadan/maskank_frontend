@@ -190,7 +190,7 @@ function SearchPanel() {
       <option value="">{language === 'ar' ? 'المحافظة' : 'Governorate'}</option>
       {locations.governorates.map((item) => (
         <option key={item.id} value={item.name_en}>
-          {language === 'ar' ? `${item.name_ar} - ${item.name_en}` : `${item.name_en} - ${item.name_ar}`}
+          {language === 'ar' ? item.name_ar : item.name_en}
         </option>
       ))}
     </select>
@@ -198,7 +198,7 @@ function SearchPanel() {
       <option value="">{language === 'ar' ? 'المدينة' : 'City'}</option>
       {availableCities.map((item) => (
         <option key={item.id} value={item.name_en}>
-          {language === 'ar' ? `${item.name_ar} - ${item.name_en}` : `${item.name_en} - ${item.name_ar}`}
+          {language === 'ar' ? item.name_ar : item.name_en}
         </option>
       ))}
     </select>

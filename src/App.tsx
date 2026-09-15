@@ -15,6 +15,7 @@ import ReviewPage from './pages/ReviewPage.jsx';
 import ContactPage from './pages/ContactPage.jsx';
 import NotFoundPage from './pages/NotFoundPage.jsx';
 import UserProfilePage from './pages/UserProfilePage.jsx';
+import PropertyMapPage from './pages/PropertyMapPage.jsx';
 import AdminRoute from './components/AdminRoute.jsx';
 import { fetchCurrentUser } from './features/users/userSlice.js';
 import { fetchFavorites } from './features/favorites/favoriteSlice.js';
@@ -35,6 +36,7 @@ export default function App() {
       <Route element={<AppLayout />}>
         <Route path="/" element={<HomePage />} />
         <Route path="/properties" element={<PropertiesPage />} />
+        <Route path="/map" element={<PropertyMapPage />} />
         <Route path="/properties/:id" element={<PropertyDetailPage />} />
         <Route path="/users/:id" element={<UserProfilePage />} />
         <Route path="/favorites" element={<FavoritesPage />} />
