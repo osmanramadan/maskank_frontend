@@ -2,9 +2,9 @@ import { useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from '../store/hooks';
 import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlus, faSpinner } from '@fortawesome/free-solid-svg-icons';
+import { faEye, faEyeSlash, faPlus, faSpinner } from '@fortawesome/free-solid-svg-icons';
 import { deleteProperty, fetchMyProperties } from '../features/properties/propertySlice.js';
-import { updateAccountName, updateAccountPhone, updateAccountRole, uploadAccountAvatar } from '../features/auth/authSlice.js';
+import { updateAccountContactVisibility, updateAccountName, updateAccountPhone, updateAccountRole, uploadAccountAvatar } from '../features/auth/authSlice.js';
 import { useLanguage } from '../i18n/LanguageContext';
 
 export default function AccountPage() {
@@ -106,6 +106,34 @@ export default function AccountPage() {
     }
   };
 
+  const toggleContactVisibility = async (field: 'email_public' | 'phone_public') => {
+    const visible = !(authUser?.[field] ?? true);
+    const result = await dispatch(updateAccountContactVisibility({ field, visible }));
+    if (updateAccountContactVisibility.rejected.match(result)) {
+      window.alert(String(result.payload || (language === 'ar' ? 'تعذر تحديث إعداد الظهور.' : 'Unable to update visibility.')));
+    }
+  };
+
+  const visibilityButton = (field: 'email_public' | 'phone_public') => {
+    const visible = authUser?.[field] ?? true;
+    return (
+      <button
+        type="button"
+        className={`contact-visibility-button ${visible ? 'is-visible' : 'is-hidden'}`}
+        onClick={() => void toggleContactVisibility(field)}
+        disabled={authStatus === 'loading'}
+        title={visible
+          ? (language === 'ar' ? 'اضغط لمنع ظهور هذا الحقل للآخرين في الموقع' : 'Hide this field from other users')
+          : (language === 'ar' ? 'اضغط لإظهار هذا الحقل للآخرين في الموقع' : 'Show this field to other users')}
+        aria-label={visible
+          ? (language === 'ar' ? 'منع ظهور هذا الحقل للآخرين' : 'Hide this field from other users')
+          : (language === 'ar' ? 'إظهار هذا الحقل للآخرين' : 'Show this field to other users')}
+      >
+        <FontAwesomeIcon icon={visible ? faEye : faEyeSlash} spin={authStatus === 'loading'} />
+      </button>
+    );
+  };
+
   return (
     <section className="auth-page-shell">
       <div className="container account-layout">
@@ -126,7 +154,7 @@ export default function AccountPage() {
             </div>
           </div>
           <div className="account-name-edit">
-            <span>{language === 'ar' ? 'الاسم' : 'Name'}</span>
+            <span>{language === 'ar' ? 'الاسم : ' : 'Name'}</span>
             {editingName ? (
               <form className="account-phone-edit" onSubmit={handleNameSave}>
                 <input type="text" value={name} onChange={(event) => setName(event.target.value)} minLength={2} maxLength={120} required />
@@ -153,13 +181,13 @@ export default function AccountPage() {
           </p>
           <div className="account-summary">
             <div className="account-email-cell">
-                <span>{t('email')}</span>
+                <span className="account-field-label">{t('email')}{visibilityButton('email_public')}</span>
                 <strong className="account-email-value" title={authUser?.email || t('unavailable')}>
                   {authUser?.email || t('unavailable')}
                 </strong>
             </div>
             <div>
-              <span>{language === 'ar' ? 'رقم الهاتف' : 'Phone number'}</span>
+              <span className="account-field-label">{language === 'ar' ? 'رقم الهاتف' : 'Phone number'}{visibilityButton('phone_public')}</span>
               {editingPhone ? (
                 <form className="account-phone-edit" onSubmit={handlePhoneSave}>
                   <input

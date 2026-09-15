@@ -121,6 +121,11 @@ h1 em { color: var(--accent); font-family: 'Fraunces', serif; font-weight: 500; 
 .account-summary { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin-top: 28px; }
 .account-summary > div { min-width: 0; background: #f7f9f7; border: 1px solid var(--line); border-radius: 12px; padding: 16px; }
 .account-summary span { display: block; color: var(--muted); font-size: .76rem; text-transform: uppercase; letter-spacing: .08em; }
+.account-field-label { display: flex !important; align-items: center; justify-content: space-between; gap: 8px; }
+.contact-visibility-button { display: inline-grid; place-items: center; width: 28px; height: 28px; padding: 0; border: 0; border-radius: 50%; background: transparent; color: var(--muted); cursor: pointer; }
+.contact-visibility-button:hover, .contact-visibility-button:focus-visible { background: var(--sage); color: var(--fern); }
+.contact-visibility-button.is-hidden { color: #b26a2e; }
+.contact-visibility-button:disabled { opacity: .55; cursor: wait; }
 .account-summary strong { display: block; margin-top: 8px; }
 .account-email-cell { min-width: 0; overflow: hidden; }
 .account-email-value { display: block; width: 100%; min-width: 0; direction: ltr; text-align: right; overflow-wrap: anywhere; word-break: break-word; }

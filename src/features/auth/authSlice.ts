@@ -27,6 +27,17 @@ export const updateAccountName = createAsyncThunk('auth/updateAccountName', asyn
   try { return (await api.patch('/auth/me/name', { fullName })).data.data; } catch (error) { return rejectWithValue(error.response?.data?.message || 'Unable to update your name'); }
 });
 
+export const updateAccountContactVisibility = createAsyncThunk(
+  'auth/updateAccountContactVisibility',
+  async ({ field, visible }: { field: 'email_public' | 'phone_public'; visible: boolean }, { rejectWithValue }) => {
+    try {
+      return (await api.patch('/auth/me/contact-visibility', { field, visible })).data.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || 'Unable to update contact visibility');
+    }
+  }
+);
+
 export const uploadAccountAvatar = createAsyncThunk('auth/uploadAccountAvatar', async (file: File, { rejectWithValue }) => {
   try {
     const formData = new FormData();
@@ -67,6 +78,9 @@ const authSlice = createSlice({
       .addCase(updateAccountName.pending, (state) => { state.status = 'loading'; })
       .addCase(updateAccountName.fulfilled, (state, action) => { state.status = 'succeeded'; state.user = action.payload.user; })
       .addCase(updateAccountName.rejected, (state, action) => { state.status = 'failed'; state.error = action.payload; })
+      .addCase(updateAccountContactVisibility.pending, (state) => { state.status = 'loading'; })
+      .addCase(updateAccountContactVisibility.fulfilled, (state, action) => { state.status = 'succeeded'; state.user = action.payload.user; })
+      .addCase(updateAccountContactVisibility.rejected, (state, action) => { state.status = 'failed'; state.error = action.payload; })
       .addCase(uploadAccountAvatar.pending, (state) => { state.status = 'loading'; })
       .addCase(uploadAccountAvatar.fulfilled, (state, action) => { state.status = 'succeeded'; state.user = action.payload.user; })
       .addCase(uploadAccountAvatar.rejected, (state, action) => { state.status = 'failed'; state.error = action.payload; });

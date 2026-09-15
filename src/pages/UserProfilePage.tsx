@@ -41,8 +41,8 @@ export default function UserProfilePage() {
           <h1>{name}</h1>
           <p className="profile-role">{language === 'ar' ? role[0] : role[1]}</p>
           <div className="profile-details">
-            <div><span>{language === 'ar' ? 'البريد الإلكتروني' : 'Email'}</span><strong>{user.email}</strong></div>
-            <div><span>{language === 'ar' ? 'رقم الهاتف' : 'Phone'}</span><strong>{user.phone}</strong></div>
+            {user.email ? <div><span>{language === 'ar' ? 'البريد الإلكتروني' : 'Email'}</span><strong>{user.email}</strong></div> : null}
+            {user.phone ? <div><span>{language === 'ar' ? 'رقم الهاتف' : 'Phone'}</span><strong>{user.phone}</strong></div> : null}
             <div><span>{language === 'ar' ? 'تاريخ الانضمام' : 'Joined'}</span><strong>{new Date(user.created_at).toLocaleDateString(language === 'ar' ? 'ar-EG' : 'en-EG')}</strong></div>
           </div>
         </div>
