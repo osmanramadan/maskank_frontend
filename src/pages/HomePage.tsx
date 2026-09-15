@@ -37,11 +37,11 @@ export default function HomePage() {
           <div className="row align-items-center gy-5">
             <div className="col-lg-7">
               <p className="eyebrow">{t('heroEyebrow')}</p>
-              <h1>{t('heroTitle')} <em>{t('heroTitleAccent')}</em></h1>
+              <h1 className='mb-5'>{t('heroTitle')} <em>{t('heroTitleAccent')}</em></h1>
               <p className="hero-copy">{t('heroCopy')}</p>
               <div className="hero-actions d-flex flex-wrap gap-3">
                 <Link to="/properties" className="btn btn-primary btn-lg rounded-pill px-4">{t('explore')} <FontAwesomeIcon icon={faArrowRight} className="ms-2" /></Link>
-                <Link to="/properties?purpose=sale" className="btn btn-quiet btn-lg rounded-pill px-4">{t('wantBuy')}</Link>
+                <Link to="/add-property" className="btn btn-quiet btn-lg rounded-pill px-4">{t('wantAddProperty')}</Link>
               </div>
             </div>
             <div className="col-lg-5">
