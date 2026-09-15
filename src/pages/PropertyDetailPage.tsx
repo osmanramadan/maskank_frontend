@@ -18,9 +18,11 @@ import {
   faXmark,
   faSpinner,
   faShareNodes,
+  faLink,
   faFlag,
   faComment
 } from '@fortawesome/free-solid-svg-icons';
+import { faFacebookF, faWhatsapp } from '@fortawesome/free-brands-svg-icons';
 import { clearSelectedProperty, fetchProperty } from '../features/properties/propertySlice.js';
 import { addFavorite, removeFavorite } from '../features/favorites/favoriteSlice.js';
 import api from '../services/api.js';
@@ -80,6 +82,8 @@ export default function PropertyDetailPage() {
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [favoriteLoading, setFavoriteLoading] = useState(false);
+  const [shareOpen, setShareOpen] = useState(false);
+  const [shareStatus, setShareStatus] = useState('');
 
   useEffect(() => {
     dispatch(fetchProperty(id));
@@ -172,19 +176,35 @@ export default function PropertyDetailPage() {
     }
   };
 
-  const sharePropertyOnFacebook = () => {
+  const shareText = () => {
     const propertyUrl = window.location.href;
     const location = language === 'ar'
       ? `${property.city_ar || property.city || ''}، ${property.governorate_ar || property.governorate || ''}`
       : `${property.city || ''}, ${property.governorate || ''}`;
     const price = `${Number(property.price).toLocaleString(language === 'ar' ? 'ar-EG' : 'en-EG')} ${property.currency}`;
-    const quote = language === 'ar'
-      ? `${property.title} - ${price} - ${location}`
-      : `${property.title} - ${price} - ${location}`;
-    const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(propertyUrl)}&quote=${encodeURIComponent(quote)}`;
-    window.open(facebookUrl, '_blank', 'noopener,noreferrer,width=620,height=700');
+    return `${property.title} - ${price} - ${location}\n${propertyUrl}`;
   };
 
+  const sharePropertyOnFacebook = () => {
+    const propertyUrl = window.location.href;
+    window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(propertyUrl)}&quote=${encodeURIComponent(shareText())}`, '_blank', 'noopener,noreferrer,width=620,height=700');
+    setShareOpen(false);
+  };
+
+  const sharePropertyOnWhatsapp = () => {
+    window.open(`https://wa.me/?text=${encodeURIComponent(shareText())}`, '_blank', 'noopener,noreferrer');
+    setShareOpen(false);
+  };
+
+  const copyPropertyLink = async () => {
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+      setShareStatus(language === 'ar' ? 'تم نسخ رابط الإعلان.' : 'Listing link copied.');
+    } catch {
+      setShareStatus(language === 'ar' ? 'تعذر نسخ الرابط تلقائيًا.' : 'Unable to copy the listing link.');
+    }
+    setShareOpen(false);
+  };
 
   const openReport = () => {
     setReportError('');
@@ -251,7 +271,19 @@ export default function PropertyDetailPage() {
 
         <div className="property-detail-actions">
           <button type="button" className={`property-action-button ${isFavorite ? 'is-favorite' : ''}`} disabled={!token || favoriteLoading} onClick={() => void handleFavoriteClick()}><FontAwesomeIcon icon={favoriteLoading ? faSpinner : faHeart} spin={favoriteLoading} /><span>{language === 'ar' ? 'حفظ' : 'Save'}</span></button>
-          <button type="button" className="property-action-button" onClick={sharePropertyOnFacebook}><FontAwesomeIcon icon={faShareNodes} /><span>{language === 'ar' ? 'مشاركة على فيسبوك' : 'Share on Facebook'}</span></button>
+          <div className="property-share-wrapper">
+            <button type="button" className="property-action-button property-share-trigger" onClick={() => { setShareOpen((current) => !current); setShareStatus(''); }}>
+              <span>{language === 'ar' ? 'مشاركة' : 'Share'}</span><FontAwesomeIcon icon={faShareNodes} />
+            </button>
+            {shareOpen ? (
+              <div className="property-share-menu" role="menu">
+                <button type="button" onClick={sharePropertyOnWhatsapp} role="menuitem"><FontAwesomeIcon icon={faWhatsapp} /> {language === 'ar' ? 'واتساب' : 'WhatsApp'}</button>
+                <button type="button" onClick={sharePropertyOnFacebook} role="menuitem"><FontAwesomeIcon icon={faFacebookF} /> {language === 'ar' ? 'فيسبوك' : 'Facebook'}</button>
+                <button type="button" onClick={() => void copyPropertyLink()} role="menuitem"><FontAwesomeIcon icon={faLink} /> {language === 'ar' ? 'نسخ الرابط' : 'Copy link'}</button>
+              </div>
+            ) : null}
+            {shareStatus ? <small className="property-share-status">{shareStatus}</small> : null}
+          </div>
           <button type="button" className="property-action-button" onClick={openReport}><FontAwesomeIcon icon={faFlag} /><span>{language === 'ar' ? 'إبلاغ' : 'Report'}</span></button>
         </div>
         {reportStatus ? <div className="alert alert-success mt-3">{reportStatus}</div> : null}

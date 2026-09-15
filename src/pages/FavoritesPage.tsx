@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from '../store/hooks';
 import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faHeart, faMapMarkerAlt, faSpinner } from '@fortawesome/free-solid-svg-icons';
+import { faHeart, faMapMarkerAlt, faSpinner, faShareNodes } from '@fortawesome/free-solid-svg-icons';
 import { fetchFavorites, removeFavorite } from '../features/favorites/favoriteSlice.js';
 import { useLanguage } from '../i18n/LanguageContext';
 
@@ -53,6 +53,15 @@ export default function FavoritesPage() {
     }
   };
 
+  const handleShareClick = async (property) => {
+    const url = `${window.location.origin}/properties/${property.id}`;
+    if (navigator.share) {
+      await navigator.share({ title: property.title, url });
+      return;
+    }
+    await navigator.clipboard.writeText(url);
+  };
+
   if (!token) {
     return (
       <section className="page-shell">
@@ -83,6 +92,14 @@ export default function FavoritesPage() {
             {favorites.map((property) => (
               <div key={property.id} className="property-card compact-card">
                 <img src={getImageUrl(Array.isArray(property.images) ? property.images[0]?.filePath : undefined)} alt={property.title || (language === 'ar' ? 'عقار' : 'Property')} className="property-card-image" onError={(event) => { if (event.currentTarget.src !== defaultPropertyImage) event.currentTarget.src = defaultPropertyImage; }} />
+                <button
+                  type="button"
+                  className="share-card-button"
+                  aria-label={language === 'ar' ? 'مشاركة الإعلان' : 'Share listing'}
+                  onClick={() => void handleShareClick(property)}
+                >
+                  <FontAwesomeIcon icon={faShareNodes} />
+                </button>
                 <div className="property-card-body">
                   <div className="property-card-topline">
                     <span>{property.purpose === 'sale' ? (language === 'ar' ? 'للبيع' : 'For sale') : (language === 'ar' ? 'للإيجار' : 'For rent')}</span>

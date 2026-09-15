@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from '../store/hooks';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBed, faBath, faRulerCombined, faMapMarkerAlt, faHeart, faSpinner } from '@fortawesome/free-solid-svg-icons';
+import { faBed, faBath, faRulerCombined, faMapMarkerAlt, faHeart, faSpinner, faShareNodes } from '@fortawesome/free-solid-svg-icons';
 import { fetchProperties } from '../features/properties/propertySlice.js';
 import { addFavorite, removeFavorite } from '../features/favorites/favoriteSlice.js';
 import { useLanguage } from '../i18n/LanguageContext';
@@ -95,6 +95,28 @@ export default function PropertiesPage() {
     }
   };
 
+  const getUpdatedLabel = (property) => {
+    const updatedAt = property.updated_at || property.created_at;
+    if (!updatedAt) return t('updatedJustNow');
+    const elapsedMinutes = Math.max(0, Math.floor((Date.now() - new Date(updatedAt).getTime()) / 60000));
+    if (elapsedMinutes < 1) return t('updatedJustNow');
+    if (elapsedMinutes < 60) return t('updatedMinutes').replace('{value}', String(elapsedMinutes));
+    const elapsedHours = Math.floor(elapsedMinutes / 60);
+    if (elapsedHours < 24) return t('updatedHours').replace('{value}', String(elapsedHours));
+    return t('updatedDays').replace('{value}', String(Math.floor(elapsedHours / 24)));
+  };
+
+  const handleShareClick = async (property, event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    const url = `${window.location.origin}/properties/${property.id}`;
+    if (navigator.share) {
+      await navigator.share({ title: property.title, url });
+      return;
+    }
+    await navigator.clipboard.writeText(url);
+  };
+
   const availableCities = locations.cities.filter(
     (city) => {
       const selectedGovernorate = locations.governorates.find(
@@ -175,6 +197,10 @@ export default function PropertiesPage() {
                 >
                   <FontAwesomeIcon icon={favoriteRequests[String(property.id)] ? faSpinner : faHeart} spin={Boolean(favoriteRequests[String(property.id)])} />
                 </button>
+                <div className="card-badges">
+                  <span className="card-listing-badge">{language === 'ar' ? `إعلان EG-${property.id}` : `Listing EG-${property.id}`}</span>
+                  <span className="card-updated-badge">{language === 'ar' ? `آخر تحديث: ${getUpdatedLabel(property)}` : `Last updated: ${getUpdatedLabel(property)}`}</span>
+                </div>
                 <Link to={`/properties/${property.id}`} className="property-card-link">
                 <div className="property-card-body">
                   <div className="property-card-topline">
@@ -191,6 +217,9 @@ export default function PropertiesPage() {
                     <span><FontAwesomeIcon icon={faBath} /> {property.bathrooms ?? 0}</span>
                     <span><FontAwesomeIcon icon={faRulerCombined} /> {property.area_sqm} sqm</span>
                     <span>{language === 'ar' ? `${Number(property.view_count || 0).toLocaleString('ar-EG')} مشاهدة` : `${Number(property.view_count || 0).toLocaleString('en-EG')} views`}</span>
+                    <button type="button" className="share-meta-button" aria-label={language === 'ar' ? 'مشاركة الإعلان' : 'Share listing'} onClick={(event) => void handleShareClick(property, event)}>
+                      <FontAwesomeIcon icon={faShareNodes} />
+                    </button>
                   </div>
                 </div>
                 </Link>
