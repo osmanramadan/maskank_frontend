@@ -224,6 +224,10 @@ export default function OwnerPropertyFormPage() {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+    if (step !== 3) {
+      setError(language === 'ar' ? 'انتقل إلى مرحلة الصور والتواصل قبل الحفظ.' : 'Go to the images and contact step before saving.');
+      return;
+    }
     if (!id && images.length === 0) {
       setError(language === 'ar' ? 'يجب اختيار صورة واحدة على الأقل عند إضافة عقار جديد.' : 'Choose at least one property image before submitting a new listing.');
       return;
@@ -266,6 +270,10 @@ export default function OwnerPropertyFormPage() {
       }
 
       dispatch(fetchProperties({ page: 1, limit: 12 }));
+      if (id) {
+        navigate('/account');
+        return;
+      }
       setSubmittedPropertyId(propertyId);
       setStep(4);
     } catch (submitError) {
@@ -306,13 +314,22 @@ export default function OwnerPropertyFormPage() {
       setError(language === 'ar' ? 'اختر المحافظة والمدينة أولًا.' : 'Select the governorate and city first.');
       return;
     }
+    if (step === 2) {
+      setError('');
+      setStep(3);
+      return;
+    }
     setError('');
-    setStep((current) => current + 1);
+    setStep(2);
   };
 
-  const stepLabels = language === 'ar'
-    ? ['البيانات الأساسية', 'التفاصيل والموقع', 'الصور والتواصل', 'الدفع والنجاح']
-    : ['Basic information', 'Details and location', 'Images and contact', 'Payment and success'];
+  const stepLabels = id
+    ? (language === 'ar'
+      ? ['البيانات الأساسية', 'التفاصيل والموقع', 'الصور والتواصل']
+      : ['Basic information', 'Details and location', 'Images and contact'])
+    : (language === 'ar'
+      ? ['البيانات الأساسية', 'التفاصيل والموقع', 'الصور والتواصل', 'الدفع والنجاح']
+      : ['Basic information', 'Details and location', 'Images and contact', 'Payment and success']);
 
   if (step === 4 && submittedPropertyId) {
     return (
@@ -574,8 +591,16 @@ export default function OwnerPropertyFormPage() {
                 {language === 'ar' ? 'السابق' : 'Back'}
               </button>
             ) : null}
-            {step < 3 ? (
-              <button type="button" className="btn btn-primary rounded-pill" onClick={goToNextStep}>
+            {step === 1 || step === 2 ? (
+              <button
+                type="button"
+                className="btn btn-primary rounded-pill"
+                onClick={(event) => {
+                  event.preventDefault();
+                  event.stopPropagation();
+                  goToNextStep();
+                }}
+              >
                 {language === 'ar' ? 'التالي' : 'Next'}
               </button>
             ) : (

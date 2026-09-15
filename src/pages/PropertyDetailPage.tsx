@@ -184,6 +184,10 @@ export default function PropertyDetailPage() {
 
         <header className="property-detail-header">
           <div className="property-detail-heading">
+            <div className="property-detail-price">
+              <strong>{Number(property.price).toLocaleString('en-EG')} {property.currency}</strong>
+              <small>{language === 'ar' ? `${Number(property.view_count || 0).toLocaleString('ar-EG')} مشاهدة` : `${Number(property.view_count || 0).toLocaleString('en-EG')} views`}</small>
+            </div>
             <div className="property-meta-header">
               <Link className="property-chip property-chip-link" to={`/properties?purpose=${property.purpose === 'sale' ? 'sale' : 'rent'}`}>
                 {property.purpose === 'sale' ? (language === 'ar' ? 'للبيع' : 'For sale') : (language === 'ar' ? 'للإيجار' : 'For rent')}
@@ -192,11 +196,6 @@ export default function PropertyDetailPage() {
             </div>
             <h1>{property.title}</h1>
             <div className="property-detail-location"><FontAwesomeIcon icon={faMapMarkerAlt} /> {property.address || `${property.city}, ${property.governorate}`}</div>
-          </div>
-          <div className="property-detail-price">
-            <strong>{Number(property.price).toLocaleString('en-EG')} {property.currency}</strong>
-            <span>{language === 'ar' ? 'السعر المطلوب' : 'Asking price'}</span>
-            <small>{language === 'ar' ? `${Number(property.view_count || 0).toLocaleString('ar-EG')} مشاهدة` : `${Number(property.view_count || 0).toLocaleString('en-EG')} views`}</small>
           </div>
         </header>
 
