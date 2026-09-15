@@ -23,6 +23,10 @@ export const updateAccountPhone = createAsyncThunk('auth/updateAccountPhone', as
   try { return (await api.patch('/auth/me/phone', { phone })).data.data; } catch (error) { return rejectWithValue(error.response?.data?.message || 'Unable to update phone number'); }
 });
 
+export const updateAccountName = createAsyncThunk('auth/updateAccountName', async (fullName: string, { rejectWithValue }) => {
+  try { return (await api.patch('/auth/me/name', { fullName })).data.data; } catch (error) { return rejectWithValue(error.response?.data?.message || 'Unable to update your name'); }
+});
+
 export const uploadAccountAvatar = createAsyncThunk('auth/uploadAccountAvatar', async (file: File, { rejectWithValue }) => {
   try {
     const formData = new FormData();
@@ -60,6 +64,9 @@ const authSlice = createSlice({
       .addCase(updateAccountPhone.pending, (state) => { state.status = 'loading'; })
       .addCase(updateAccountPhone.fulfilled, (state, action) => { state.status = 'succeeded'; state.user = action.payload.user; })
       .addCase(updateAccountPhone.rejected, (state, action) => { state.status = 'failed'; state.error = action.payload; })
+      .addCase(updateAccountName.pending, (state) => { state.status = 'loading'; })
+      .addCase(updateAccountName.fulfilled, (state, action) => { state.status = 'succeeded'; state.user = action.payload.user; })
+      .addCase(updateAccountName.rejected, (state, action) => { state.status = 'failed'; state.error = action.payload; })
       .addCase(uploadAccountAvatar.pending, (state) => { state.status = 'loading'; })
       .addCase(uploadAccountAvatar.fulfilled, (state, action) => { state.status = 'succeeded'; state.user = action.payload.user; })
       .addCase(uploadAccountAvatar.rejected, (state, action) => { state.status = 'failed'; state.error = action.payload; });

@@ -2,9 +2,9 @@ import { useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from '../store/hooks';
 import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlus } from '@fortawesome/free-solid-svg-icons';
+import { faPlus, faSpinner } from '@fortawesome/free-solid-svg-icons';
 import { deleteProperty, fetchMyProperties } from '../features/properties/propertySlice.js';
-import { updateAccountPhone, updateAccountRole, uploadAccountAvatar } from '../features/auth/authSlice.js';
+import { updateAccountName, updateAccountPhone, updateAccountRole, uploadAccountAvatar } from '../features/auth/authSlice.js';
 import { useLanguage } from '../i18n/LanguageContext';
 
 export default function AccountPage() {
@@ -20,6 +20,9 @@ export default function AccountPage() {
   const avatarInputRef = useRef(null);
   const [phone, setPhone] = useState('');
   const [editingPhone, setEditingPhone] = useState(false);
+  const [name, setName] = useState('');
+  const [editingName, setEditingName] = useState(false);
+  const [avatarUploading, setAvatarUploading] = useState(false);
   const displayName = authUser?.full_name || authUser?.fullName || t('account');
   const initials = displayName.trim().split(/\s+/).slice(0, 2).map((part) => part[0]).join('').toUpperCase();
   const statusLabel = (status) => {
@@ -35,6 +38,7 @@ export default function AccountPage() {
   useEffect(() => {
     if (authUser) {
       setPhone(authUser.phone || '');
+      setName(authUser.full_name || authUser.fullName || '');
       dispatch(fetchMyProperties());
     }
   }, [dispatch, authUser]);
@@ -55,11 +59,31 @@ export default function AccountPage() {
   const handleAvatarChange = async (event) => {
     const file = event.target.files?.[0];
     if (!file) return;
-    const result = await dispatch(uploadAccountAvatar(file));
-    if (uploadAccountAvatar.rejected.match(result)) {
-      window.alert(String(result.payload || (language === 'ar' ? 'تعذر رفع صورة الحساب' : 'Unable to upload profile image')));
+    setAvatarUploading(true);
+    try {
+      const result = await dispatch(uploadAccountAvatar(file));
+      if (uploadAccountAvatar.rejected.match(result)) {
+        window.alert(String(result.payload || (language === 'ar' ? 'تعذر رفع صورة الحساب' : 'Unable to upload profile image')));
+      }
+    } finally {
+      setAvatarUploading(false);
+      event.target.value = '';
     }
-    event.target.value = '';
+  };
+
+  const handleNameSave = async (event) => {
+    event.preventDefault();
+    const normalizedName = name.trim();
+    if (normalizedName.length < 2 || normalizedName.length > 120) {
+      window.alert(language === 'ar' ? 'الاسم يجب أن يكون بين حرفين و120 حرفًا.' : 'Name must be between 2 and 120 characters.');
+      return;
+    }
+    const result = await dispatch(updateAccountName(normalizedName));
+    if (updateAccountName.fulfilled.match(result)) {
+      setEditingName(false);
+    } else {
+      window.alert(String(result.payload || (language === 'ar' ? 'تعذر تحديث الاسم.' : 'Unable to update your name.')));
+    }
   };
 
   const handlePhoneSave = async (event) => {
@@ -93,13 +117,36 @@ export default function AccountPage() {
             ) : (
               <div className="account-avatar account-avatar-fallback" aria-label={displayName}>{initials || '?'}</div>
             )}
-            <div>
+            <div className="account-profile-copy">
               <h1>{t('welcomeBack')}, {displayName}.</h1>
-              <button type="button" className="btn btn-outline-primary rounded-pill account-avatar-button" onClick={() => avatarInputRef.current?.click()} disabled={authStatus === 'loading'}>
-                {language === 'ar' ? 'رفع صورة الحساب' : 'Upload profile image'}
+              <button type="button" className="btn btn-outline-primary rounded-pill account-avatar-button" onClick={() => avatarInputRef.current?.click()} disabled={avatarUploading || authStatus === 'loading'}>
+                {avatarUploading ? <><FontAwesomeIcon icon={faSpinner} spin /> {language === 'ar' ? 'جارٍ رفع الصورة...' : 'Uploading...'}</> : (language === 'ar' ? 'رفع صورة الحساب' : 'Upload profile image')}
               </button>
               <input ref={avatarInputRef} type="file" accept="image/jpeg,image/png,image/webp" onChange={handleAvatarChange} hidden />
             </div>
+          </div>
+          <div className="account-name-edit">
+            <span>{language === 'ar' ? 'الاسم' : 'Name'}</span>
+            {editingName ? (
+              <form className="account-phone-edit" onSubmit={handleNameSave}>
+                <input type="text" value={name} onChange={(event) => setName(event.target.value)} minLength={2} maxLength={120} required />
+                <div className="account-phone-actions">
+                  <button type="submit" className="btn btn-primary rounded-pill" disabled={authStatus === 'loading'}>
+                    {authStatus === 'loading' ? <FontAwesomeIcon icon={faSpinner} spin /> : (language === 'ar' ? 'حفظ' : 'Save')}
+                  </button>
+                  <button type="button" className="btn btn-outline-secondary rounded-pill" onClick={() => { setName(displayName); setEditingName(false); }}>
+                    {language === 'ar' ? 'إلغاء' : 'Cancel'}
+                  </button>
+                </div>
+              </form>
+            ) : (
+              <>
+                <strong>{displayName}</strong>
+                <button type="button" className="btn btn-link p-0 account-edit-phone" onClick={() => setEditingName(true)}>
+                  {language === 'ar' ? 'تعديل الاسم' : 'Edit name'}
+                </button>
+              </>
+            )}
           </div>
           <p className="page-copy">
             {t('manageAccount')}
