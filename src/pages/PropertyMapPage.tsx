@@ -37,9 +37,9 @@ const markerIcon = L.icon({
 });
 const userLocationIcon = L.divIcon({
   className: 'property-map-user-marker',
-  html: '<svg class="property-map-user-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="7" r="3.5"></circle><path d="M5.5 20c.6-4.1 2.8-6.2 6.5-6.2s5.9 2.1 6.5 6.2"></path></svg>',
-  iconSize: [28, 28],
-  iconAnchor: [14, 14]
+  html: '<svg class="property-map-user-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="7" r="3.2"></circle><path d="M5.5 20c.6-4.1 2.8-6.2 6.5-6.2s5.9 2.1 6.5 6.2"></path></svg>',
+  iconSize: [34, 34],
+  iconAnchor: [17, 17]
 });
 
 function distanceInKm(first: Coordinates, second: Coordinates) {
@@ -51,6 +51,35 @@ function distanceInKm(first: Coordinates, second: Coordinates) {
   const value = Math.sin(latitudeDelta / 2) ** 2
     + Math.sin(longitudeDelta / 2) ** 2 * Math.cos(latitudeOne) * Math.cos(latitudeTwo);
   return earthRadius * 2 * Math.atan2(Math.sqrt(value), Math.sqrt(1 - value));
+}
+
+function getVisibleMarkerPositions(properties: MapProperty[]) {
+  const groups = new Map<string, MapProperty[]>();
+  properties.forEach((property) => {
+    const key = `${Number(property.latitude).toFixed(5)}:${Number(property.longitude).toFixed(5)}`;
+    const group = groups.get(key) || [];
+    group.push(property);
+    groups.set(key, group);
+  });
+
+  const positions = new Map<number, [number, number]>();
+  groups.forEach((group) => {
+    group.forEach((property, index) => {
+      const latitude = Number(property.latitude);
+      const longitude = Number(property.longitude);
+      if (group.length === 1) {
+        positions.set(property.id, [latitude, longitude]);
+        return;
+      }
+      const angle = (2 * Math.PI * index) / group.length;
+      const offset = 0.0012;
+      positions.set(property.id, [
+        latitude + Math.sin(angle) * offset,
+        longitude + Math.cos(angle) * offset
+      ]);
+    });
+  });
+  return positions;
 }
 
 function FitMapToProperties({ properties }: { properties: MapProperty[] }) {
@@ -136,6 +165,10 @@ export default function PropertyMapPage() {
       }) <= 25),
     [nearbyOnly, properties, userLocation]
   );
+  const visibleMarkerPositions = useMemo(
+    () => getVisibleMarkerPositions(mappedProperties),
+    [mappedProperties]
+  );
   const availableCities = locations.cities.filter((item) => {
     const selected = locations.governorates.find((item) => item.name_en === governorate);
     return selected && Number(item.governorate_id) === Number(selected.id);
@@ -185,8 +218,7 @@ export default function PropertyMapPage() {
         </div>
         {locationMessage ? <div className="property-map-location-message">{locationMessage}</div> : null}
         {status === 'failed' ? <div className="alert alert-danger">{t('propertyMapFailed')}</div> : null}
-        {status === 'succeeded' && !mappedProperties.length ? <div className="empty-state">{t('propertyMapEmpty')}</div> : null}
-        {mappedProperties.length ? (
+        {status === 'succeeded' ? (
           <div className="property-map-card">
             <MapContainer className="property-map" center={egyptCenter} zoom={6} scrollWheelZoom>
               <TileLayer attribution="&copy; OpenStreetMap contributors" url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
@@ -195,7 +227,7 @@ export default function PropertyMapPage() {
               {mappedProperties.map((property) => (
                 <Marker
                   key={property.id}
-                  position={[Number(property.latitude), Number(property.longitude)]}
+                  position={visibleMarkerPositions.get(property.id) || [Number(property.latitude), Number(property.longitude)]}
                   icon={markerIcon}
                 >
                   <Popup>
@@ -211,6 +243,7 @@ export default function PropertyMapPage() {
                 </Marker>
               ))}
             </MapContainer>
+            {!mappedProperties.length ? <div className="property-map-empty">{t('propertyMapEmpty')}</div> : null}
           </div>
         ) : null}
       </div>
