@@ -2,6 +2,7 @@ import { Link, NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from '../store/hooks';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faComments, faEnvelope, faLocationDot, faPhone } from '@fortawesome/free-solid-svg-icons';
+import { faWhatsapp } from '@fortawesome/free-brands-svg-icons';
 import { clearCredentials } from '../features/auth/authSlice.js';
 import { useLanguage } from '../i18n/LanguageContext';
 
@@ -92,7 +93,7 @@ export default function AppLayout() {
               <div className="footer-socials">
                 <a href="#" aria-label="Facebook"><strong>f</strong></a>
                 <a href="#" aria-label="Instagram"><strong>◎</strong></a>
-                <a href="mailto:info@maskank.com" aria-label={language === 'ar' ? 'البريد الإلكتروني' : 'Email'}><FontAwesomeIcon icon={faEnvelope} /></a>
+                <a href="mailto:aqaratmesr@gmail.com" aria-label={language === 'ar' ? 'البريد الإلكتروني' : 'Email'}><FontAwesomeIcon icon={faEnvelope} /></a>
               </div>
             </div>
             <div className="footer-column">
@@ -100,6 +101,8 @@ export default function AppLayout() {
               <NavLink to="/properties">{t('properties')}</NavLink>
               <NavLink to="/properties?purpose=sale">{t('buy')}</NavLink>
               <NavLink to="/properties?purpose=rent">{t('rent')}</NavLink>
+              <NavLink to="/map">{t('footerMap')}</NavLink>
+              {canCreateProperty ? <NavLink to="/add-property">{t('addProperty')}</NavLink> : null}
             </div>
             <div className="footer-column">
               <h3>{t('footerAccount')}</h3>
@@ -112,6 +115,9 @@ export default function AppLayout() {
               <NavLink to="/contact"><FontAwesomeIcon icon={faComments} /> {t('footerContact')}</NavLink>
               <a href="mailto:aqaratmesr@gmail.com"><FontAwesomeIcon icon={faEnvelope} /> aqaratmesr@gmail.com</a>
               <a href="tel:01027528199"><FontAwesomeIcon icon={faPhone} /> 01027528199</a>
+              <a className="footer-whatsapp" href="https://wa.me/201008236822" target="_blank" rel="noreferrer" aria-label="WhatsApp">
+                <FontAwesomeIcon icon={faWhatsapp} /> WhatsApp
+              </a>
             </div>
           </div>
           <div className="footer-bottom">

@@ -64,38 +64,7 @@ export default function HomePage() {
           <div className="row g-3">{categories.map((category) => <div className="col-6 col-lg-3" key={category.label}><Link to={`/properties?type=${category.type}`} className="category-tile"><span className="category-icon"><FontAwesomeIcon icon={category.icon} /></span><strong>{category.label}</strong><small>{categoryCounts[category.type] === undefined ? '—' : language === 'ar' ? `${categoryCounts[category.type].toLocaleString('ar-EG')} إعلان` : `${categoryCounts[category.type].toLocaleString('en-EG')} listings`}</small></Link></div>)}</div>
         </div>
       </section>
-      <section className="benefits-section">
-        <div className="container">
-          <div className="section-heading text-center mb-4">
-            <p className="eyebrow dark">{t('benefitsEyebrow')}</p>
-            <h2>{t('benefitsTitle')}</h2>
-          </div>
-          <div className="row g-3">
-            <div className="col-md-4">
-              <article className="benefit-card">
-                <span className="benefit-icon"><FontAwesomeIcon icon={faShieldHalved} /></span>
-                <h3>{t('verifiedBenefit')}</h3>
-                <p>{t('verifiedBenefitCopy')}</p>
-              </article>
-            </div>
-            <div className="col-md-4">
-              <article className="benefit-card">
-                <span className="benefit-icon"><FontAwesomeIcon icon={faMagnifyingGlass} /></span>
-                <h3>{t('smartSearchBenefit')}</h3>
-                <p>{t('smartSearchBenefitCopy')}</p>
-              </article>
-            </div>
-            <div className="col-md-4">
-              <article className="benefit-card">
-                <span className="benefit-icon"><FontAwesomeIcon icon={faComments} /></span>
-                <h3>{t('directContactBenefit')}</h3>
-                <p>{t('directContactBenefitCopy')}</p>
-              </article>
-            </div>
-          </div>
-        </div>
-      </section>
-      <section className="listing-steps-section">
+            <section className="listing-steps-section">
         <div className="container">
           <div className="section-heading text-center mb-5">
             <p className="eyebrow dark">{t('listingStepsEyebrow')}</p>
@@ -130,6 +99,38 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+      <section className="benefits-section">
+        <div className="container">
+          <div className="section-heading text-center mb-4">
+            <p className="eyebrow dark">{t('benefitsEyebrow')}</p>
+            <h2>{t('benefitsTitle')}</h2>
+          </div>
+          <div className="row g-3">
+            <div className="col-md-4">
+              <article className="benefit-card">
+                <span className="benefit-icon"><FontAwesomeIcon icon={faShieldHalved} /></span>
+                <h3>{t('verifiedBenefit')}</h3>
+                <p>{t('verifiedBenefitCopy')}</p>
+              </article>
+            </div>
+            <div className="col-md-4">
+              <article className="benefit-card">
+                <span className="benefit-icon"><FontAwesomeIcon icon={faMagnifyingGlass} /></span>
+                <h3>{t('smartSearchBenefit')}</h3>
+                <p>{t('smartSearchBenefitCopy')}</p>
+              </article>
+            </div>
+            <div className="col-md-4">
+              <article className="benefit-card">
+                <span className="benefit-icon"><FontAwesomeIcon icon={faComments} /></span>
+                <h3>{t('directContactBenefit')}</h3>
+                <p>{t('directContactBenefitCopy')}</p>
+              </article>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <section className="trust-band">
         <div className="container">
           <div className="row g-4 align-items-center">

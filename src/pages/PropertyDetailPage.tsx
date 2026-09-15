@@ -129,6 +129,16 @@ export default function PropertyDetailPage() {
           : propertyTypeKey === 'land'
             ? t('land')
             : property.property_type;
+  const updatedAt = property.updated_at || property.created_at;
+  const getUpdatedLabel = () => {
+    if (!updatedAt) return t('updatedJustNow');
+    const elapsedMinutes = Math.max(0, Math.floor((Date.now() - new Date(updatedAt).getTime()) / 60000));
+    if (elapsedMinutes < 1) return t('updatedJustNow');
+    if (elapsedMinutes < 60) return t('updatedMinutes').replace('{value}', String(elapsedMinutes));
+    const elapsedHours = Math.floor(elapsedMinutes / 60);
+    if (elapsedHours < 24) return t('updatedHours').replace('{value}', String(elapsedHours));
+    return t('updatedDays').replace('{value}', String(Math.floor(elapsedHours / 24)));
+  };
 
   const submitReport = async (event) => {
     event.preventDefault();
@@ -162,6 +172,19 @@ export default function PropertyDetailPage() {
     }
   };
 
+  const sharePropertyOnFacebook = () => {
+    const propertyUrl = window.location.href;
+    const location = language === 'ar'
+      ? `${property.city_ar || property.city || ''}، ${property.governorate_ar || property.governorate || ''}`
+      : `${property.city || ''}, ${property.governorate || ''}`;
+    const price = `${Number(property.price).toLocaleString(language === 'ar' ? 'ar-EG' : 'en-EG')} ${property.currency}`;
+    const quote = language === 'ar'
+      ? `${property.title} - ${price} - ${location}`
+      : `${property.title} - ${price} - ${location}`;
+    const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(propertyUrl)}&quote=${encodeURIComponent(quote)}`;
+    window.open(facebookUrl, '_blank', 'noopener,noreferrer,width=620,height=700');
+  };
+
 
   const openReport = () => {
     setReportError('');
@@ -186,7 +209,11 @@ export default function PropertyDetailPage() {
           <div className="property-detail-heading">
             <div className="property-detail-price">
               <strong>{Number(property.price).toLocaleString('en-EG')} {property.currency}{property.purpose === 'rent' ? ` / ${t('perMonth')}` : ''}</strong>
-              <small>{language === 'ar' ? `${Number(property.view_count || 0).toLocaleString('ar-EG')} مشاهدة` : `${Number(property.view_count || 0).toLocaleString('en-EG')} views`}</small>
+              <small>
+                {language === 'ar'
+                  ? `${Number(property.view_count || 0).toLocaleString('ar-EG')} مشاهدة · ${t('lastUpdated')}: ${getUpdatedLabel()}`
+                  : `${Number(property.view_count || 0).toLocaleString('en-EG')} views · ${t('lastUpdated')}: ${getUpdatedLabel()}`}
+              </small>
             </div>
             <div className="property-meta-header">
               <Link className="property-chip property-chip-link" to={`/properties?purpose=${property.purpose === 'sale' ? 'sale' : 'rent'}`}>
@@ -224,7 +251,7 @@ export default function PropertyDetailPage() {
 
         <div className="property-detail-actions">
           <button type="button" className={`property-action-button ${isFavorite ? 'is-favorite' : ''}`} disabled={!token || favoriteLoading} onClick={() => void handleFavoriteClick()}><FontAwesomeIcon icon={favoriteLoading ? faSpinner : faHeart} spin={favoriteLoading} /><span>{language === 'ar' ? 'حفظ' : 'Save'}</span></button>
-          <button type="button" className="property-action-button" onClick={() => { if (navigator.share) void navigator.share({ title: property.title, url: window.location.href }); }}><FontAwesomeIcon icon={faShareNodes} /><span>{language === 'ar' ? 'مشاركة' : 'Share'}</span></button>
+          <button type="button" className="property-action-button" onClick={sharePropertyOnFacebook}><FontAwesomeIcon icon={faShareNodes} /><span>{language === 'ar' ? 'مشاركة على فيسبوك' : 'Share on Facebook'}</span></button>
           <button type="button" className="property-action-button" onClick={openReport}><FontAwesomeIcon icon={faFlag} /><span>{language === 'ar' ? 'إبلاغ' : 'Report'}</span></button>
         </div>
         {reportStatus ? <div className="alert alert-success mt-3">{reportStatus}</div> : null}
