@@ -4,7 +4,7 @@ import { MapContainer, Marker, Popup, TileLayer, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowUp, faLocationCrosshairs, faMapLocationDot } from '@fortawesome/free-solid-svg-icons';
+import { faLocationCrosshairs, faMapLocationDot } from '@fortawesome/free-solid-svg-icons';
 import api from '../services/api.js';
 import { useLanguage } from '../i18n/LanguageContext';
 
@@ -108,11 +108,14 @@ export default function PropertyMapPage() {
   const [userLocation, setUserLocation] = useState<Coordinates | null>(null);
   const [nearbyOnly, setNearbyOnly] = useState(false);
   const [locationMessage, setLocationMessage] = useState('');
-  const [showBackToTop, setShowBackToTop] = useState(false);
+  const [scrollProgress, setScrollProgress] = useState(0);
   const [status, setStatus] = useState<'loading' | 'succeeded' | 'failed'>('loading');
 
   useEffect(() => {
-    const handleScroll = () => setShowBackToTop(window.scrollY > 240);
+    const handleScroll = () => {
+      const scrollableHeight = document.documentElement.scrollHeight - window.innerHeight;
+      setScrollProgress(scrollableHeight > 0 ? window.scrollY / scrollableHeight : 0);
+    };
     handleScroll();
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
@@ -186,8 +189,6 @@ export default function PropertyMapPage() {
     ? `${property.city_ar || property.city || ''}، ${property.governorate_ar || property.governorate || ''}`
     : `${property.city || ''}, ${property.governorate || ''}`;
 
-  const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
-
   if (status === 'loading') {
     return <section className="page-shell"><div className="container"><div className="loading-card">{t('loading')}</div></div></section>;
   }
@@ -257,17 +258,19 @@ export default function PropertyMapPage() {
           </div>
         ) : null}
       </div>
-      {showBackToTop ? (
-        <button
-          type="button"
-          className="property-map-back-to-top"
-          onClick={scrollToTop}
-          aria-label={language === 'ar' ? 'العودة إلى أعلى الصفحة' : 'Back to top'}
-          title={language === 'ar' ? 'العودة إلى أعلى الصفحة' : 'Back to top'}
-        >
-          <FontAwesomeIcon icon={faArrowUp} />
-        </button>
-      ) : null}
+      <input
+        className="property-map-scrollbar"
+        type="range"
+        min="0"
+        max="100"
+        step="0.1"
+        value={scrollProgress * 100}
+        onChange={(event) => {
+          const scrollableHeight = document.documentElement.scrollHeight - window.innerHeight;
+          window.scrollTo({ top: (Number(event.target.value) / 100) * scrollableHeight, behavior: 'auto' });
+        }}
+        aria-label={language === 'ar' ? 'التحكم في تمرير الصفحة' : 'Page scroll control'}
+      />
     </section>
   );
 }
