@@ -29,7 +29,7 @@
 .property-map-filters .form-select { min-height: 44px; border-color: var(--line); }
 .property-location-button { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; white-space: nowrap; border: 1px solid var(--fern); color: var(--fern); font-weight: 700; }
 .property-location-button:hover, .property-location-button.is-active { color: #fff; background: var(--fern); }
-.property-map-location-message { margin: 0 0 12px; color: var(--muted); font-size: .86rem; }
+.property-map-location-message { width: 100%; max-width: 100%; margin: 0 0 12px; padding: 0 16px; color: var(--muted); font-size: .86rem; line-height: 1.7; text-align: center; white-space: normal; overflow-wrap: anywhere; }
 .property-map-empty { position: absolute; top: 24px; left: 50%; z-index: 2; padding: 10px 16px; border: 1px solid var(--line); border-radius: 999px; background: rgba(255,255,255,.94); color: var(--muted); transform: translateX(-50%); }
 .property-map-user-marker { display: grid; place-items: center; width: 34px !important; height: 34px !important; border: 3px solid #1677ff; border-radius: 50%; background: #1677ff; box-shadow: 0 0 0 5px rgba(22,119,255,.25); overflow: hidden; }
 .property-map-user-icon { width: 21px; height: 21px; fill: none; stroke: #fff; stroke-linecap: round; stroke-linejoin: round; stroke-width: 2.2; }
@@ -173,6 +173,14 @@ h1 em { color: var(--accent); font-family: 'Fraunces', serif; font-weight: 500; 
 .account-avatar { width: 76px; height: 76px; flex: 0 0 76px; border-radius: 50%; object-fit: cover; border: 3px solid var(--accent); }
 .account-avatar-fallback { display: grid; place-items: center; background: var(--forest); color: #fff; font-size: 1.35rem; font-weight: 800; }
 .account-avatar-button { margin-top: 8px; }
+html[dir="ltr"] .account-layout,
+html[dir="ltr"] .account-profile-header { direction: ltr; }
+html[dir="ltr"] .account-profile-copy,
+html[dir="ltr"] .account-name-edit,
+html[dir="ltr"] .account-summary { text-align: left; }
+html[dir="ltr"] .account-field-label { direction: ltr; }
+html[dir="ltr"] .contact-visibility-control { direction: ltr; }
+html[dir="ltr"] .account-email-value { text-align: left; }
 .user-profile-layout { display: grid; grid-template-columns: minmax(0, 420px) minmax(0, 1fr); gap: 24px; align-items: start; }
 .user-profile-layout > .auth-card { min-width: 0; max-width: 100%; }
 .user-profile-card { min-width: 0; text-align: center; }
