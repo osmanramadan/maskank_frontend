@@ -179,7 +179,7 @@ export default function PropertiesPage() {
                 <div className="property-card-body">
                   <div className="property-card-topline">
                     <span>{property.purpose === 'sale' ? t('forSale') : t('forRent')}</span>
-                    <strong>{Number(property.price).toLocaleString('en-EG')} {property.currency}</strong>
+                    <strong>{Number(property.price).toLocaleString('en-EG')} {property.currency}{property.purpose === 'rent' ? ` / ${t('perMonth')}` : ''}</strong>
                   </div>
                   <h3>{property.title}</h3>
                   <div className="location-chip">

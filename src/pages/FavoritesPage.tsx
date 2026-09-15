@@ -86,7 +86,7 @@ export default function FavoritesPage() {
                 <div className="property-card-body">
                   <div className="property-card-topline">
                     <span>{property.purpose === 'sale' ? (language === 'ar' ? 'للبيع' : 'For sale') : (language === 'ar' ? 'للإيجار' : 'For rent')}</span>
-                    <strong>{Number(property.price).toLocaleString('en-EG')} {property.currency}</strong>
+                    <strong>{Number(property.price).toLocaleString('en-EG')} {property.currency}{property.purpose === 'rent' ? ` / ${t('perMonth')}` : ''}</strong>
                   </div>
                   <h3>{property.title}</h3>
                   <div className="location-chip">

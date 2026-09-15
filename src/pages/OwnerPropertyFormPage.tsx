@@ -428,7 +428,7 @@ export default function OwnerPropertyFormPage() {
             </div>
             <div className="col-md-4">
               <label>
-                <span>{t('price')}</span>
+                <span>{form.purpose === 'rent' ? t('monthlyRentPrice') : t('price')}</span>
                 <input name="price" type="number" value={form.price} onChange={handleChange} required />
               </label>
             </div>

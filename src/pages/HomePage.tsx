@@ -1,5 +1,5 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowRight, faBuilding, faKey, faMagnifyingGlass, faShieldHalved, faComments } from '@fortawesome/free-solid-svg-icons';
+import { faArrowRight, faBuilding, faKey, faMagnifyingGlass, faShieldHalved, faComments, faUser, faPlus } from '@fortawesome/free-solid-svg-icons';
 import { Link } from 'react-router-dom';
 import { useLanguage } from '../i18n/LanguageContext';
 import { useEffect, useState } from 'react';
@@ -37,7 +37,7 @@ export default function HomePage() {
           <div className="row align-items-center gy-5">
             <div className="col-lg-7">
               <p className="eyebrow">{t('heroEyebrow')}</p>
-              <h1 className='mb-5'>{t('heroTitle')} <em>{t('heroTitleAccent')}</em></h1>
+              <h1 className='mb-5 '>{t('heroTitle')} <em>{t('heroTitleAccent')}</em></h1>
               <p className="hero-copy">{t('heroCopy')}</p>
               <div className="hero-actions d-flex flex-wrap gap-3">
                 <Link to="/properties" className="btn btn-primary btn-lg rounded-pill px-4">{t('explore')} <FontAwesomeIcon icon={faArrowRight} className="ms-2" /></Link>
@@ -90,6 +90,41 @@ export default function HomePage() {
                 <span className="benefit-icon"><FontAwesomeIcon icon={faComments} /></span>
                 <h3>{t('directContactBenefit')}</h3>
                 <p>{t('directContactBenefitCopy')}</p>
+              </article>
+            </div>
+          </div>
+        </div>
+      </section>
+      <section className="listing-steps-section">
+        <div className="container">
+          <div className="section-heading text-center mb-5">
+            <p className="eyebrow dark">{t('listingStepsEyebrow')}</p>
+            <h2>{t('listingStepsTitle')}</h2>
+            <p className="listing-steps-copy">{t('listingStepsCopy')}</p>
+          </div>
+          <div className="row g-3 listing-steps-grid">
+            <div className="col-md-4">
+              <article className="listing-step-card">
+                <span className="listing-step-number">01</span>
+                <span className="listing-step-icon"><FontAwesomeIcon icon={faUser} /></span>
+                <h3>{t('listingStepOneTitle')}</h3>
+                <p>{t('listingStepOneCopy')}</p>
+              </article>
+            </div>
+            <div className="col-md-4">
+              <article className="listing-step-card">
+                <span className="listing-step-number">02</span>
+                <span className="listing-step-icon"><FontAwesomeIcon icon={faPlus} /></span>
+                <h3>{t('listingStepTwoTitle')}</h3>
+                <p>{t('listingStepTwoCopy')}</p>
+              </article>
+            </div>
+            <div className="col-md-4">
+              <article className="listing-step-card">
+                <span className="listing-step-number">03</span>
+                <span className="listing-step-icon"><FontAwesomeIcon icon={faShieldHalved} /></span>
+                <h3>{t('listingStepThreeTitle')}</h3>
+                <p>{t('listingStepThreeCopy')}</p>
               </article>
             </div>
           </div>

@@ -185,7 +185,7 @@ export default function PropertyDetailPage() {
         <header className="property-detail-header">
           <div className="property-detail-heading">
             <div className="property-detail-price">
-              <strong>{Number(property.price).toLocaleString('en-EG')} {property.currency}</strong>
+              <strong>{Number(property.price).toLocaleString('en-EG')} {property.currency}{property.purpose === 'rent' ? ` / ${t('perMonth')}` : ''}</strong>
               <small>{language === 'ar' ? `${Number(property.view_count || 0).toLocaleString('ar-EG')} مشاهدة` : `${Number(property.view_count || 0).toLocaleString('en-EG')} views`}</small>
             </div>
             <div className="property-meta-header">

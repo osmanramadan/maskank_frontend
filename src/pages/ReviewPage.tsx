@@ -191,7 +191,7 @@ export default function ReviewPage() {
                       <h3>{language === 'ar' ? 'بيانات الإعلان' : 'Listing details'}</h3>
                       <div className="admin-preview-data">
                         <div><span>{t('title')}</span><strong>{preview.title || '—'}</strong></div>
-                        <div><span>{t('price')}</span><strong>{Number(preview.price).toLocaleString(language === 'ar' ? 'ar-EG' : 'en-EG')} {preview.currency || ''}</strong></div>
+                        <div><span>{preview.purpose === 'rent' ? t('monthlyRentPrice') : t('price')}</span><strong>{Number(preview.price).toLocaleString(language === 'ar' ? 'ar-EG' : 'en-EG')} {preview.currency || ''}{preview.purpose === 'rent' ? ` / ${t('perMonth')}` : ''}</strong></div>
                         <div><span>{t('areaSqm')}</span><strong>{preview.area_sqm ?? '—'} m²</strong></div>
                         <div><span>{language === 'ar' ? 'النوع' : 'Type'}</span><strong>{preview.property_type || '—'}</strong></div>
                         <div><span>{language === 'ar' ? 'الغرض' : 'Purpose'}</span><strong>{preview.purpose || '—'}</strong></div>

@@ -86,7 +86,7 @@ export default function AdminPage() {
                     <div><span>{language === 'ar' ? 'الحالة' : 'Status'}</span><strong>{property.status}</strong></div>
                     <div><span>{language === 'ar' ? 'النوع' : 'Type'}</span><strong>{property.property_type}</strong></div>
                     <div><span>{language === 'ar' ? 'الغرض' : 'Purpose'}</span><strong>{property.purpose}</strong></div>
-                    <div><span>{language === 'ar' ? 'السعر' : 'Price'}</span><strong>{Number(property.price).toLocaleString('en-EG')} {property.currency}</strong></div>
+                    <div><span>{property.purpose === 'rent' ? t('monthlyRentPrice') : t('price')}</span><strong>{Number(property.price).toLocaleString('en-EG')} {property.currency}{property.purpose === 'rent' ? ` / ${t('perMonth')}` : ''}</strong></div>
                   </div>
                 </div>
                 <div className="owner-listing-actions">

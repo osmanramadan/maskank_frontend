@@ -79,6 +79,14 @@ h1 em { color: var(--accent); font-family: 'Fraunces', serif; font-weight: 500; 
 .benefit-icon { display: grid; place-items: center; width: 54px; height: 54px; margin: 0 auto 18px; border-radius: 50%; background: var(--sage); color: var(--fern); font-size: 1.2rem; }
 .benefit-card h3 { margin: 0 0 9px; font-size: 1.15rem; }
 .benefit-card p { margin: 0; color: var(--muted); line-height: 1.7; font-size: .9rem; }
+.listing-steps-section { padding: 0 0 88px; }
+.listing-steps-copy { max-width: 620px; margin: 14px auto 0; color: var(--muted); line-height: 1.8; }
+.listing-steps-grid { position: relative; }
+.listing-step-card { position: relative; height: 100%; padding: 30px 26px; background: var(--cream); border: 1px solid #e6e7e0; border-radius: 12px; text-align: center; }
+.listing-step-number { position: absolute; top: 16px; inset-inline-end: 18px; color: var(--accent); font-size: .8rem; font-weight: 700; letter-spacing: .08em; }
+.listing-step-icon { display: grid; place-items: center; width: 58px; height: 58px; margin: 0 auto 18px; border-radius: 50%; background: var(--fern); color: #fff; font-size: 1.15rem; }
+.listing-step-card h3 { margin: 0 0 10px; font-size: 1.15rem; }
+.listing-step-card p { margin: 0; color: var(--muted); line-height: 1.75; font-size: .9rem; }
 .category-tile strong { font-size: 1rem; }
 .category-tile small, .trust-band small { margin-top: 4px; color: var(--muted); font-size: .76rem; }
 .trust-band { padding: 78px 0; background: var(--cream); }
@@ -418,7 +426,7 @@ textarea { width: 100%; border: 1px solid var(--line); border-radius: 10px; padd
   .account-layout > .auth-card { max-width: 100%; }
   .user-profile-layout { grid-template-columns: minmax(0, 1fr); max-width: 760px; }
 }
-@media (max-width: 575px) { .hero-section h1 { font-size: 3.25rem; } .hero-content { padding-top: 42px; } .hero-note { margin-left: 0; } .search-panel { grid-template-columns: 1fr; margin-top: 48px; } .search-label { grid-column: auto; padding: 5px 3px; } .section-space { padding: 64px 0; } .section-heading h2, .trust-band h2 { font-size: 2rem; } .auth-card { padding: 22px; } .account-profile-header { align-items: flex-start; gap: 14px; } .account-profile-copy h1 { font-size: 1.55rem; } .user-profile-card h1 { font-size: 1.8rem; } .account-summary { grid-template-columns: 1fr; } .account-listings-card .d-flex { align-items: stretch !important; } .account-add-property { width: 100%; justify-content: center; } .stats-grid { grid-template-columns: repeat(2, minmax(0,1fr)); } .detail-info-panel { grid-template-columns: 1fr; } .property-main-image { height: 300px; } .message-meta { flex-direction: column; align-items: flex-start; } .owner-listing-item { grid-template-columns: minmax(0, 1fr); } .owner-listing-actions { justify-content: flex-start; } .owner-listing-actions .btn { flex: 1; min-width: 0; } .review-item { flex-direction: column; align-items: stretch; } .admin-property-data, .admin-preview-data { grid-template-columns: repeat(2, minmax(0,1fr)); } .admin-preview-wide { grid-column: 1 / -1; } .review-item .owner-listing-actions { justify-content: flex-start; } }
+@media (max-width: 575px) { .hero-section h1 { max-width: none; font-size: clamp(2rem, 9vw, 2.7rem); white-space: nowrap; } .hero-content { padding-top: 42px; } .hero-note { margin-left: 0; } .search-panel { grid-template-columns: 1fr; margin-top: 48px; } .search-label { grid-column: auto; padding: 5px 3px; } .section-space { padding: 64px 0; } .section-heading h2, .trust-band h2 { font-size: 2rem; } .auth-card { padding: 22px; } .account-profile-header { align-items: flex-start; gap: 14px; } .account-profile-copy h1 { font-size: 1.55rem; } .user-profile-card h1 { font-size: 1.8rem; } .account-summary { grid-template-columns: 1fr; } .account-listings-card .d-flex { align-items: stretch !important; } .account-add-property { width: 100%; justify-content: center; } .stats-grid { grid-template-columns: repeat(2, minmax(0,1fr)); } .detail-info-panel { grid-template-columns: 1fr; } .property-main-image { height: 300px; } .message-meta { flex-direction: column; align-items: flex-start; } .owner-listing-item { grid-template-columns: minmax(0, 1fr); } .owner-listing-actions { justify-content: flex-start; } .owner-listing-actions .btn { flex: 1; min-width: 0; } .review-item { flex-direction: column; align-items: stretch; } .admin-property-data, .admin-preview-data { grid-template-columns: repeat(2, minmax(0,1fr)); } .admin-preview-wide { grid-column: 1 / -1; } .review-item .owner-listing-actions { justify-content: flex-start; } }
 @media (max-width: 575px) {
   .property-detail-shell { padding-bottom: 86px; }
   .property-detail-header { padding-top: 0; }

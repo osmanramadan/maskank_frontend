@@ -53,7 +53,7 @@ export default function UserProfilePage() {
               {properties.map((property) => (
                 <Link className="profile-property-item" to={`/properties/${property.id}`} key={property.id}>
                   <strong>{property.title}</strong>
-                  <span>{Number(property.price).toLocaleString(language === 'ar' ? 'ar-EG' : 'en-EG')} {property.currency}</span>
+                  <span>{Number(property.price).toLocaleString(language === 'ar' ? 'ar-EG' : 'en-EG')} {property.currency}{property.purpose === 'rent' ? ` / ${t('perMonth')}` : ''}</span>
                   <small>{property.city}، {property.governorate}</small>
                 </Link>
               ))}
