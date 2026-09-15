@@ -31,6 +31,8 @@
 .property-location-button:hover, .property-location-button.is-active { color: #fff; background: var(--fern); }
 .property-map-location-message { width: 100%; max-width: 100%; margin: 0 0 12px; padding: 0 16px; color: var(--muted); font-size: .86rem; line-height: 1.7; text-align: center; white-space: normal; overflow-wrap: anywhere; }
 .property-map-empty { position: absolute; top: 24px; left: 50%; z-index: 2; padding: 10px 16px; border: 1px solid var(--line); border-radius: 999px; background: rgba(255,255,255,.94); color: var(--muted); transform: translateX(-50%); }
+.property-map-back-to-top { position: fixed; right: 22px; bottom: 24px; z-index: 1000; display: grid; place-items: center; width: 46px; height: 46px; border: 0; border-radius: 50%; color: #fff; background: var(--fern); box-shadow: 0 8px 20px rgba(17,51,37,.28); cursor: pointer; }
+.property-map-back-to-top:hover { background: var(--forest); transform: translateY(-2px); }
 .property-map-user-marker { display: grid; place-items: center; width: 34px !important; height: 34px !important; border: 3px solid #1677ff; border-radius: 50%; background: #1677ff; box-shadow: 0 0 0 5px rgba(22,119,255,.25); overflow: hidden; }
 .property-map-user-icon { width: 21px; height: 21px; fill: none; stroke: #fff; stroke-linecap: round; stroke-linejoin: round; stroke-width: 2.2; }
 body { margin: 0; background: var(--paper); color: var(--ink); font-family: 'Cairo', 'DM Sans', sans-serif; }
@@ -54,16 +56,15 @@ main { flex: 1; }
 .primary-nav { position: static; transform: none; margin: 0 auto; }
 .account-nav { margin-left: 0; padding-left: 0; }
 .primary-nav .nav-link, .account-nav .nav-link { white-space: nowrap; }
-html[dir="rtl"] .header-inner,
-html[dir="rtl"] .navbar-collapse,
-html[dir="rtl"] .header-nav,
 html[dir="rtl"] .primary-nav,
 html[dir="rtl"] .account-nav { direction: rtl; }
-html[dir="rtl"] .account-nav { margin-right: 0; margin-left: 0; padding-right: 0; padding-left: 0; }
+html[dir="rtl"] .account-nav { direction: ltr; margin-right: 0; margin-left: 0; padding-right: 0; padding-left: 0; }
+html[dir="rtl"] .account-nav-link { direction: rtl; text-align: right; }
 .properties-dropdown { display: flex; align-items: center; }
 .properties-toggle { padding-inline: 0 4px; }
 .dropdown-chevron { font-size: .62rem; margin-inline-start: 5px; }
 .primary-nav .dropdown { position: relative; }
+.properties-dropdown .dropdown-menu { top: 100%; right: 0; left: auto; margin-top: 8px; transform: none !important; }
 .dropdown-toggle::after { display: none; }
 .dropdown-menu { direction: rtl; text-align: right; min-width: 150px; z-index: 2000; }
 .dropdown-item { padding: 8px 16px; font-family: inherit; color: var(--ink); background-color: transparent; }
@@ -476,6 +477,7 @@ textarea { width: 100%; border: 1px solid var(--line); border-radius: 10px; padd
   .property-map-filters { grid-template-columns: 1fr; }
   .property-map { height: calc(100vh - 300px); min-height: 560px; }
   .property-map-heading { padding: 22px 16px 14px; }
+  .property-map-back-to-top { right: 16px; bottom: 18px; width: 44px; height: 44px; }
 }
 @media (max-width: 575px) { .hero-section h1 { max-width: none; font-size: clamp(2rem, 9vw, 2.7rem); white-space: nowrap; } .hero-content { padding-top: 42px; } .hero-note { margin-left: 0; } .search-panel { grid-template-columns: 1fr; margin-top: 48px; } .search-label { grid-column: auto; padding: 5px 3px; } .section-space { padding: 64px 0; } .section-heading h2, .trust-band h2 { font-size: 2rem; } .auth-card { padding: 22px; } .account-profile-header { align-items: flex-start; gap: 14px; } .account-profile-copy h1 { font-size: 1.55rem; } .user-profile-card h1 { font-size: 1.8rem; } .account-summary { grid-template-columns: 1fr; } .account-listings-card .d-flex { align-items: stretch !important; } .account-add-property { width: 100%; justify-content: center; } .stats-grid { grid-template-columns: repeat(2, minmax(0,1fr)); } .detail-info-panel { grid-template-columns: 1fr; } .property-main-image { height: 300px; } .message-meta { flex-direction: column; align-items: flex-start; } .owner-listing-item { grid-template-columns: minmax(0, 1fr); } .owner-listing-actions { justify-content: flex-start; } .owner-listing-actions .btn { flex: 1; min-width: 0; } .review-item { flex-direction: column; align-items: stretch; } .admin-property-data, .admin-preview-data { grid-template-columns: repeat(2, minmax(0,1fr)); } .admin-preview-wide { grid-column: 1 / -1; } .review-item .owner-listing-actions { justify-content: flex-start; } }
 @media (max-width: 575px) {

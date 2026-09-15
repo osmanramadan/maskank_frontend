@@ -4,7 +4,7 @@ import { MapContainer, Marker, Popup, TileLayer, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faLocationCrosshairs, faMapLocationDot } from '@fortawesome/free-solid-svg-icons';
+import { faArrowUp, faLocationCrosshairs, faMapLocationDot } from '@fortawesome/free-solid-svg-icons';
 import api from '../services/api.js';
 import { useLanguage } from '../i18n/LanguageContext';
 
@@ -108,7 +108,15 @@ export default function PropertyMapPage() {
   const [userLocation, setUserLocation] = useState<Coordinates | null>(null);
   const [nearbyOnly, setNearbyOnly] = useState(false);
   const [locationMessage, setLocationMessage] = useState('');
+  const [showBackToTop, setShowBackToTop] = useState(false);
   const [status, setStatus] = useState<'loading' | 'succeeded' | 'failed'>('loading');
+
+  useEffect(() => {
+    const handleScroll = () => setShowBackToTop(window.scrollY > 240);
+    handleScroll();
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   useEffect(() => {
     let active = true;
@@ -177,6 +185,8 @@ export default function PropertyMapPage() {
   const locationName = (property: MapProperty) => language === 'ar'
     ? `${property.city_ar || property.city || ''}، ${property.governorate_ar || property.governorate || ''}`
     : `${property.city || ''}, ${property.governorate || ''}`;
+
+  const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
 
   if (status === 'loading') {
     return <section className="page-shell"><div className="container"><div className="loading-card">{t('loading')}</div></div></section>;
@@ -247,6 +257,17 @@ export default function PropertyMapPage() {
           </div>
         ) : null}
       </div>
+      {showBackToTop ? (
+        <button
+          type="button"
+          className="property-map-back-to-top"
+          onClick={scrollToTop}
+          aria-label={language === 'ar' ? 'العودة إلى أعلى الصفحة' : 'Back to top'}
+          title={language === 'ar' ? 'العودة إلى أعلى الصفحة' : 'Back to top'}
+        >
+          <FontAwesomeIcon icon={faArrowUp} />
+        </button>
+      ) : null}
     </section>
   );
 }
