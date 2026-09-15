@@ -138,6 +138,7 @@ export default function OwnerPropertyFormPage() {
   const [cities, setCities] = useState<City[]>([]);
   const [step, setStep] = useState(1);
   const [submittedPropertyId, setSubmittedPropertyId] = useState<number | string | null>(null);
+  const [shareStatus, setShareStatus] = useState('');
 
   useEffect(() => {
     if (!token || !['USER', 'OWNER', 'BROKER', 'COMPANY', 'ADMIN'].includes(role || '')) return;
@@ -305,6 +306,78 @@ export default function OwnerPropertyFormPage() {
     setForm((current) => ({ ...current, latitude, longitude }));
   };
 
+  const shareSubmittedProperty = async () => {
+    const governorate = governorates.find((item) => String(item.id) === String(form.governorate_id));
+    const city = cities.find((item) => String(item.id) === String(form.city_id));
+    const governorateName = governorate ? locationLabel(governorate, language) : '';
+    const cityName = city ? locationLabel(city, language) : '';
+    const price = `${Number(form.price).toLocaleString(language === 'ar' ? 'ar-EG' : 'en-EG')} ${form.currency}`;
+    const listingText = language === 'ar'
+      ? `${form.title}\n${form.purpose === 'rent' ? 'للإيجار' : 'للبيع'} - ${price}\nالمساحة: ${form.area_sqm} م²\nالموقع: ${cityName}، ${governorateName}\n${form.description}`
+      : `${form.title}\n${form.purpose === 'rent' ? 'For rent' : 'For sale'} - ${price}\nArea: ${form.area_sqm} sqm\nLocation: ${cityName}, ${governorateName}\n${form.description}`;
+
+    try {
+      await navigator.clipboard.writeText(listingText);
+      if (images[0]) {
+        const imageUrl = URL.createObjectURL(images[0]);
+        const image = new Image();
+        image.onload = () => {
+          const canvas = document.createElement('canvas');
+          canvas.width = 1200;
+          canvas.height = 900;
+          const context = canvas.getContext('2d');
+          if (!context) {
+            URL.revokeObjectURL(imageUrl);
+            setShareStatus(language === 'ar' ? 'تعذر إنشاء صورة الإعلان.' : 'Unable to create the listing image.');
+            return;
+          }
+          context.fillStyle = '#f7f3eb';
+          context.fillRect(0, 0, canvas.width, canvas.height);
+          const scale = Math.max(canvas.width / image.width, 500 / image.height);
+          const imageWidth = image.width * scale;
+          const imageHeight = image.height * scale;
+          context.drawImage(image, (canvas.width - imageWidth) / 2, 0, imageWidth, imageHeight);
+          context.fillStyle = 'rgba(20, 34, 29, 0.84)';
+          context.fillRect(0, 500, canvas.width, 400);
+          context.fillStyle = '#ffffff';
+          context.direction = language === 'ar' ? 'rtl' : 'ltr';
+          context.textAlign = language === 'ar' ? 'right' : 'left';
+          const textX = language === 'ar' ? 1120 : 80;
+          context.font = '700 44px Arial';
+          context.fillText(form.title.slice(0, 42), textX, 570);
+          context.font = '700 38px Arial';
+          context.fillText(price, textX, 635);
+          context.font = '28px Arial';
+          context.fillText(`${cityName}${cityName && governorateName ? (language === 'ar' ? '، ' : ', ') : ''}${governorateName}`, textX, 690);
+          context.font = '26px Arial';
+          context.fillText(language === 'ar' ? 'أضف عقارك - الخريطة العقارية' : 'List your property - Al-Kharita Al-Aqaria', textX, 825);
+          const link = document.createElement('a');
+          link.download = `property-${submittedPropertyId}.png`;
+          link.href = canvas.toDataURL('image/png');
+          link.click();
+          URL.revokeObjectURL(imageUrl);
+          setShareStatus(language === 'ar'
+            ? 'تم تنزيل صورة الإعلان ونسخ البيانات. أرفق الصورة والصق النص في منشور فيسبوك.'
+            : 'The listing image was downloaded and the text copied. Attach the image and paste the text into your Facebook post.');
+        };
+        image.onerror = () => {
+          URL.revokeObjectURL(imageUrl);
+          setShareStatus(language === 'ar' ? 'تم نسخ البيانات، لكن تعذر إنشاء صورة الإعلان.' : 'The text was copied, but the listing image could not be created.');
+        };
+        image.src = imageUrl;
+      } else {
+        setShareStatus(language === 'ar'
+          ? 'تم نسخ بيانات الإعلان. أضف صورة عند إنشاء منشور فيسبوك.'
+          : 'The listing data was copied. Add an image when creating the Facebook post.');
+      }
+      window.open('https://www.facebook.com/', '_blank', 'noopener,noreferrer');
+    } catch {
+      setShareStatus(language === 'ar'
+        ? 'تعذر نسخ البيانات تلقائيًا. يمكنك نسخها يدويًا من بيانات الإعلان.'
+        : 'The listing data could not be copied automatically. You can copy it manually from the listing details.');
+    }
+  };
+
   const goToNextStep = () => {
     if (step === 1 && (!String(form.title).trim() || !String(form.description).trim() || !form.price || !form.area_sqm)) {
       setError(language === 'ar' ? 'أكمل العنوان والوصف والسعر والمساحة أولًا.' : 'Complete the title, description, price, and area first.');
@@ -370,6 +443,10 @@ export default function OwnerPropertyFormPage() {
                 ? 'بعد التحويل، أرسل إثبات الدفع للإدارة عند الحاجة. سيظل الإعلان قيد المراجعة حتى اعتماد الأدمن.'
                 : 'After transferring, send proof of payment to the administration if requested. The listing remains pending until approved.'}
             </p>
+            <button type="button" className="btn btn-outline-primary rounded-pill" onClick={() => void shareSubmittedProperty()}>
+              {language === 'ar' ? 'إنشاء منشور فيسبوك بالإعلان' : 'Create a Facebook post from this listing'}
+            </button>
+            {shareStatus ? <div className="alert alert-info mt-3">{shareStatus}</div> : null}
             <button type="button" className="btn btn-primary rounded-pill" onClick={() => navigate('/account')}>
               {language === 'ar' ? 'الذهاب إلى حسابي' : 'Go to my account'}
             </button>
