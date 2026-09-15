@@ -318,59 +318,10 @@ export default function OwnerPropertyFormPage() {
 
     try {
       await navigator.clipboard.writeText(listingText);
-      if (images[0]) {
-        const imageUrl = URL.createObjectURL(images[0]);
-        const image = new Image();
-        image.onload = () => {
-          const canvas = document.createElement('canvas');
-          canvas.width = 1200;
-          canvas.height = 900;
-          const context = canvas.getContext('2d');
-          if (!context) {
-            URL.revokeObjectURL(imageUrl);
-            setShareStatus(language === 'ar' ? 'تعذر إنشاء صورة الإعلان.' : 'Unable to create the listing image.');
-            return;
-          }
-          context.fillStyle = '#f7f3eb';
-          context.fillRect(0, 0, canvas.width, canvas.height);
-          const scale = Math.max(canvas.width / image.width, 500 / image.height);
-          const imageWidth = image.width * scale;
-          const imageHeight = image.height * scale;
-          context.drawImage(image, (canvas.width - imageWidth) / 2, 0, imageWidth, imageHeight);
-          context.fillStyle = 'rgba(20, 34, 29, 0.84)';
-          context.fillRect(0, 500, canvas.width, 400);
-          context.fillStyle = '#ffffff';
-          context.direction = language === 'ar' ? 'rtl' : 'ltr';
-          context.textAlign = language === 'ar' ? 'right' : 'left';
-          const textX = language === 'ar' ? 1120 : 80;
-          context.font = '700 44px Arial';
-          context.fillText(form.title.slice(0, 42), textX, 570);
-          context.font = '700 38px Arial';
-          context.fillText(price, textX, 635);
-          context.font = '28px Arial';
-          context.fillText(`${cityName}${cityName && governorateName ? (language === 'ar' ? '، ' : ', ') : ''}${governorateName}`, textX, 690);
-          context.font = '26px Arial';
-          context.fillText(language === 'ar' ? 'أضف عقارك - الخريطة العقارية' : 'List your property - Al-Kharita Al-Aqaria', textX, 825);
-          const link = document.createElement('a');
-          link.download = `property-${submittedPropertyId}.png`;
-          link.href = canvas.toDataURL('image/png');
-          link.click();
-          URL.revokeObjectURL(imageUrl);
-          setShareStatus(language === 'ar'
-            ? 'تم تنزيل صورة الإعلان ونسخ البيانات. أرفق الصورة والصق النص في منشور فيسبوك.'
-            : 'The listing image was downloaded and the text copied. Attach the image and paste the text into your Facebook post.');
-        };
-        image.onerror = () => {
-          URL.revokeObjectURL(imageUrl);
-          setShareStatus(language === 'ar' ? 'تم نسخ البيانات، لكن تعذر إنشاء صورة الإعلان.' : 'The text was copied, but the listing image could not be created.');
-        };
-        image.src = imageUrl;
-      } else {
-        setShareStatus(language === 'ar'
-          ? 'تم نسخ بيانات الإعلان. أضف صورة عند إنشاء منشور فيسبوك.'
-          : 'The listing data was copied. Add an image when creating the Facebook post.');
-      }
-      window.open('https://www.facebook.com/', '_blank', 'noopener,noreferrer');
+      window.open('https://www.facebook.com/composer/', '_blank', 'noopener,noreferrer');
+      setShareStatus(language === 'ar'
+        ? 'تم نسخ بيانات الإعلان. الصقها الآن في منشور فيسبوك وأضف صور العقار إذا أردت.'
+        : 'The listing data was copied. Paste it into your Facebook post and add the property images if needed.');
     } catch {
       setShareStatus(language === 'ar'
         ? 'تعذر نسخ البيانات تلقائيًا. يمكنك نسخها يدويًا من بيانات الإعلان.'
