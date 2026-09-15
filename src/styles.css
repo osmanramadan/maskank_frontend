@@ -130,10 +130,15 @@ h1 em { color: var(--accent); font-family: 'Fraunces', serif; font-weight: 500; 
 .account-summary > div { min-width: 0; background: #f7f9f7; border: 1px solid var(--line); border-radius: 12px; padding: 16px; }
 .account-summary span { display: block; color: var(--muted); font-size: .76rem; text-transform: uppercase; letter-spacing: .08em; }
 .account-field-label { display: flex !important; align-items: center; justify-content: space-between; gap: 8px; }
+.contact-visibility-control { display: inline-flex; align-items: center; gap: 6px; direction: rtl; }
+.contact-visibility-hint { display: inline !important; color: var(--muted); font-size: .68rem !important; font-weight: 600; letter-spacing: 0 !important; text-transform: none !important; text-align: end; }
+.contact-visibility-hint.is-visible { color: var(--fern); }
+.contact-visibility-hint.is-hidden { color: #b26a2e; }
 .contact-visibility-button { display: inline-grid; place-items: center; width: 28px; height: 28px; padding: 0; border: 0; border-radius: 50%; background: transparent; color: var(--muted); cursor: pointer; }
 .contact-visibility-button:hover, .contact-visibility-button:focus-visible { background: var(--sage); color: var(--fern); }
 .contact-visibility-button.is-hidden { color: #b26a2e; }
 .contact-visibility-button:disabled { opacity: .55; cursor: wait; }
+@media (max-width: 575px) { .account-field-label { align-items: flex-start; } .contact-visibility-control { align-items: flex-start; flex-wrap: wrap; justify-content: flex-end; max-width: 72%; } .contact-visibility-hint { line-height: 1.35; } }
 .account-summary strong { display: block; margin-top: 8px; }
 .account-email-cell { min-width: 0; overflow: hidden; }
 .account-email-value { display: block; width: 100%; min-width: 0; direction: ltr; text-align: right; overflow-wrap: anywhere; word-break: break-word; }

@@ -117,20 +117,27 @@ export default function AccountPage() {
   const visibilityButton = (field: 'email_public' | 'phone_public') => {
     const visible = authUser?.[field] ?? true;
     return (
-      <button
-        type="button"
-        className={`contact-visibility-button ${visible ? 'is-visible' : 'is-hidden'}`}
-        onClick={() => void toggleContactVisibility(field)}
-        disabled={authStatus === 'loading'}
-        title={visible
-          ? (language === 'ar' ? 'اضغط لمنع ظهور هذا الحقل للآخرين في الموقع' : 'Hide this field from other users')
-          : (language === 'ar' ? 'اضغط لإظهار هذا الحقل للآخرين في الموقع' : 'Show this field to other users')}
-        aria-label={visible
-          ? (language === 'ar' ? 'منع ظهور هذا الحقل للآخرين' : 'Hide this field from other users')
-          : (language === 'ar' ? 'إظهار هذا الحقل للآخرين' : 'Show this field to other users')}
-      >
-        <FontAwesomeIcon icon={visible ? faEye : faEyeSlash} spin={authStatus === 'loading'} />
-      </button>
+      <span className="contact-visibility-control">
+        <button
+          type="button"
+          className={`contact-visibility-button ${visible ? 'is-visible' : 'is-hidden'}`}
+          onClick={() => void toggleContactVisibility(field)}
+          disabled={authStatus === 'loading'}
+          title={visible
+            ? (language === 'ar' ? 'اضغط لمنع ظهور هذا الحقل للآخرين في الموقع' : 'Hide this field from other users')
+            : (language === 'ar' ? 'اضغط لإظهار هذا الحقل للآخرين في الموقع' : 'Show this field to other users')}
+          aria-label={visible
+            ? (language === 'ar' ? 'منع ظهور هذا الحقل للآخرين' : 'Hide this field from other users')
+            : (language === 'ar' ? 'إظهار هذا الحقل للآخرين' : 'Show this field to other users')}
+        >
+          <FontAwesomeIcon icon={visible ? faEye : faEyeSlash} spin={authStatus === 'loading'} />
+        </button>
+        <small className={`contact-visibility-hint ${visible ? 'is-visible' : 'is-hidden'}`}>
+          {visible
+            ? (language === 'ar' ? 'ظاهر للآخرين - اضغط للإخفاء' : 'Visible to others - click to hide')
+            : (language === 'ar' ? 'مخفي عن الآخرين - اضغط للإظهار' : 'Hidden from others - click to show')}
+        </small>
+      </span>
     );
   };
 
